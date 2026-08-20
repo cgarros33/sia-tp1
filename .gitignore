@@ -1,0 +1,47 @@
+# Artefactos de Python. El bytecode se regenera solo y depende de la versión del
+# intérprete (acá 3.14), así que commitearlo genera conflictos entre las cuatro
+# máquinas del grupo sin aportar nada.
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales. Cada uno arma el suyo; las dependencias autorizadas están
+# documentadas en docs/01_REGLAS_DE_TRABAJO.md, que es la fuente de verdad.
+.venv/
+venv/
+env/
+ENV/
+
+# Cachés de herramientas de test y análisis (Fase 3 en adelante).
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Empaquetado. No distribuimos el proyecto, pero si alguien corre un build local
+# no tiene por qué ensuciar el repositorio.
+build/
+dist/
+*.egg-info/
+
+# Editores y sistema operativo. El grupo trabaja en máquinas distintas y estos
+# archivos son de la máquina, no del trabajo práctico.
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Salidas de trabajo que NO son entregables: pruebas sueltas, mediciones
+# descartables, tableros dibujados a mano mientras se depura.
+scratch/
+tmp/
+
+# OJO: las salidas de las fases 6, 7 y 8 —resultados.csv, el GIF de N1, las
+# figuras— SÍ van al repositorio. Son la evidencia de los números que se
+# muestran en la presentación y tienen que poder mirarse sin volver a correr
+# nada. No las agregues acá.
