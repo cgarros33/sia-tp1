@@ -200,8 +200,16 @@ class Problema:
     def reconstruir_estados(self, acciones) -> list[Estado]
 ```
 
-`detector_deadlocks` es un gancho para la Fase 5. En esta fase se recibe y se
-ignora si es `None`; no implementes nada de deadlocks todavía.
+`detector_deadlocks` es un gancho para la Fase 5, con firma
+`detector(cajas: frozenset[int], caja_movida: int) -> bool`. Recibe la caja
+recién empujada porque alcanza con revisar esa: las demás ya se validaron cuando
+se movieron. En esta fase se recibe y no se implementa nada de deadlocks
+todavía.
+
+`sucesores()` lo consulta sólo después de un empuje. `reconstruir_estados()`
+**no** lo consulta nunca: la poda es una optimización de la búsqueda, no una
+regla del juego, y si el detector tuviera un bug el reproductor cortaría el
+camino a la mitad culpando a la acción en vez de al detector.
 
 `reconstruir_estados()` devuelve la secuencia **completa** de estados de una
 solución. Es lo que va a consumir el reproductor de la Fase 7, y también lo que
@@ -221,16 +229,31 @@ Un script de verificación que, para los cinco niveles:
    obtiene el mismo problema (ida y vuelta).
 5. Desde el estado inicial genera los sucesores y verifica que ninguno atraviese
    una pared ni superponga dos cajas.
+6. Ejecuta sobre N1 una solución de 8 movimientos construida a mano y verifica
+   que llegue a meta con 5 empujes. Es la comprobación más fuerte de la fase:
+   contrasta el modelo de transición contra la verdad externa —el récord
+   publicado es de 8 movimientos y 5 empujes— sin que exista todavía ninguna
+   búsqueda.
 
-Salida esperada:
+Salida esperada (la real, medida; el script termina con código de salida 0):
 
 ```
-n1_micro.sok      1 cajas   1 metas   12 celdas   ida y vuelta OK   4 sucesores válidos
-n2_akk04.sok      4 cajas   4 metas   32 celdas   ida y vuelta OK   ...
-n3_caminata.sok   2 cajas   2 metas   35 celdas   ida y vuelta OK   ...
-n4_matching.sok   4 cajas   4 metas   31 celdas   ida y vuelta OK   ...
-n5_limite.sok     4 cajas   4 metas   41 celdas   ida y vuelta OK   ...
+Verificación de la Fase 1 — modelo del problema (5 niveles)
+
+n1_micro.sok      1 cajas   1 metas   12 celdas   ida y vuelta OK   2 sucesores válidos
+n2_akk04.sok      4 cajas   4 metas   32 celdas   ida y vuelta OK   2 sucesores válidos
+n3_caminata.sok   2 cajas   2 metas   35 celdas   ida y vuelta OK   3 sucesores válidos
+n4_matching.sok   4 cajas   4 metas   31 celdas   ida y vuelta OK   2 sucesores válidos
+n5_limite.sok     4 cajas   4 metas   41 celdas   ida y vuelta OK   1 sucesor válido
+
+n1_micro.sok      solución RRURDDDD: 9 estados, termina en meta, 5 empujes   OK
+
+5/5 niveles OK.
 ```
+
+La cantidad de sucesores del estado inicial es baja porque en los cinco niveles
+el jugador arranca con dos o tres de sus cuatro vecinos bloqueados. En N5 tiene
+un único sucesor.
 
 ---
 
