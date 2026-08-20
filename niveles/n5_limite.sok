@@ -1,9 +1,9 @@
 ; N5 - Sasquatch XII :: level 06   (game-sokoban.com lid=8602)
 ; 4 cajas, 41 celdas. Óptimo publicado: 306 movimientos / 99 empujes.
-; VERIFICADO: BFS halla 306/99 en 2.027.982 nodos (16,5 s).
-;             A* con matching: 699.785 nodos (8,4 s).
-; Rol: el nivel límite. Solución de 306 movimientos con sólo 4 cajas: demuestra
-;      que la dificultad NO viene del largo de la solución sino del espacio de estados.
+; VERIFICADO: BFS halla 306/99 en 2.027.982 nodos (16,5 s). A* con matching: 699.785 nodos (8,4 s).
+; Rol: el nivel límite de la suite. Solución de 306 movimientos con sólo 4 cajas:
+;      demuestra que la dificultad NO viene del largo de la solución sino del
+;      tamaño del espacio de estados.
 #########
 ##  #####
 ##   $ ##

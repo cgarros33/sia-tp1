@@ -1,0 +1,15 @@
+; N3 - Microban :: level 29   (game-sokoban.com lid=953)
+; 2 cajas, 35 celdas. Óptimo publicado: 104 movimientos / 22 empujes.
+; VERIFICADO: BFS halla 104/22 en 6.207 nodos (0,02 s). A* con matching: 2.530 nodos.
+; Rol: 82 de los 104 movimientos son CAMINATA del jugador (79 %). Como las
+;      heurísticas de Sokoban sólo estiman EMPUJES, acá se ve su punto ciego.
+;      Es el nivel que explica por qué A* rinde menos que en el 8-puzzle.
+###########
+######   ##
+######    #
+#######   #
+##     #. #
+# $ $ @  ##
+# ######.##
+#        ##
+###########
