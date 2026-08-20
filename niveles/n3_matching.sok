@@ -1,0 +1,12 @@
+; N3 - A.K.K. Informatika :: level 02   (game-sokoban.com lid=29617)
+; 4 cajas, 4 metas agrupadas en un bloque 2x2. Óptimo publicado: 70 mov / 22 empujes.
+; VERIFICADO con BFS (644.933 nodos, 4,4 s).
+; Rol: metas agrupadas -> "cada caja a su meta más cercana" sobreasigna. Justifica el matching.
+########
+#  #   #
+#   $  #
+#  #$$ #
+## #   #
+#.. $# #
+#..   @#
+########

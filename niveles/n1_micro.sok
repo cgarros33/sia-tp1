@@ -1,0 +1,11 @@
+; N1 - ABHT 02 :: level 01   (game-sokoban.com lid=37953)
+; 1 caja. Óptimo publicado: 8 movimientos / 5 empujes.  VERIFICADO con BFS.
+; Rol en la presentación: control de sanidad + demo estado por estado completa.
+######
+#    #
+#@ $ #
+#### #
+#### #
+#### #
+####.#
+######
