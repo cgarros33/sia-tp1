@@ -1,0 +1,13 @@
+; N2 - A.K.K. Informatika :: level 04   (game-sokoban.com lid=29619)
+; 4 cajas, 32 celdas. Óptimo publicado: 45 movimientos / 18 empujes.
+; VERIFICADO: BFS halla 45/18 en 41.440 nodos (0,1 s). A* con matching: 7.250 nodos.
+; Rol: el primer nivel "real" con 4 cajas. Es barato de correr, así que sirve
+;      para iterar heurísticas rápido antes de pasar a los pesados.
+###########
+## @#   ###
+## $  $ ###
+##$ #######
+## $#     #
+#. . .    #
+#.  #######
+###########
