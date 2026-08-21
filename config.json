@@ -1,0 +1,10 @@
+{
+  "nivel": "niveles/n4_matching.sok",
+  "metodo": "astar",
+  "heuristica": "h1",
+  "timeout_s": 300,
+  "max_nodos": 3000000,
+  "limite_profundidad": null,
+  "w": 0.5,
+  "mostrar_solucion": true
+}
