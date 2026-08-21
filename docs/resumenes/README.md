@@ -35,6 +35,5 @@ exactamente el escenario que hay que evitar.
 | 6 — Runner y experimentos | `FASE_6_RESUMEN.md` | pendiente |
 | 7 — Reproductor | `FASE_7_RESUMEN.md` | pendiente |
 | 8 — Gráficos y análisis | `FASE_8_RESUMEN.md` | pendiente |
-| 9 — Presentación | `FASE_9_RESUMEN.md` | pendiente |
 
 El agente actualiza esta tabla al terminar cada fase.

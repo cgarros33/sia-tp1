@@ -1,11 +1,12 @@
 # 02 — Plan de fases
 
-Nueve fases. Cada una tiene un **criterio de aceptación verificable**: mientras
+Ocho fases. Cada una tiene un **criterio de aceptación verificable**: mientras
 no se cumpla, la fase no está terminada y no se pasa a la siguiente.
 
 La columna "dueño" es de las personas del grupo, no del agente. El dueño es
-quien tiene que poder explicar esa parte en el oral, más allá de quién escribió
-el código.
+quien maneja el agente durante esa fase y escribe su resumen: es un reparto del
+**trabajo**, no de la exposición. En el oral hablamos todos de todo, y cualquiera
+puede recibir cualquier pregunta sobre cualquier parte del proyecto.
 
 | Fase | Qué construye | Dueño | Criterio de aceptación |
 |---|---|---|---|
@@ -17,7 +18,6 @@ el código.
 | 6 | Runner + `config.json` | Leo | Un comando produce `resultados.csv` con toda la matriz |
 | 7 | Reproductor estado por estado | Celestino | Existe el GIF de N1 con sus 8 movimientos |
 | 8 | Gráficos y análisis | Leo | Las 4 figuras generadas desde el CSV |
-| 9 | Presentación | los 4 | Ensayo cruzado superado |
 
 ---
 
@@ -127,17 +127,11 @@ barrido de `w` es el ejemplo bueno. Comparar "cantidad de cajas contra tiempo"
 mezclando niveles distintos es el ejemplo malo, porque está confundido con el
 tamaño y la topología del tablero.
 
-## Fase 9 — Presentación
+Entrega de la fase: las **cuatro figuras**, el **análisis** que las acompaña, y
+una **carpeta con las figuras en resolución de proyección**. Es la última fase
+del plan: acá termina el trabajo con el agente.
 
-28 minutos repartidos parejo, porque la nota es individual.
+---
 
-| Bloque | Quién | Min |
-|---|---|---|
-| Modelado, decisiones y los 5 niveles + demo de N1 | Matías | 6 |
-| Métodos desinformados: dónde revienta cada uno | Celestino | 6 |
-| La escalera de heurísticas y sus demostraciones | Fede | 8 |
-| Análisis comparativo, barrido de w, el muro | Leo | 7 |
-| Conclusiones, una por persona | los 4 | 2 |
-
-Cierra con un **ensayo cruzado**: cada uno expone el bloque de otro. Donde
-alguien se traba, ahí está el agujero real.
+**Nota al pie.** La presentación no es una fase del agente. Las diapositivas las
+arma el grupo y el PDF se versiona en `docs/presentacion/`.
