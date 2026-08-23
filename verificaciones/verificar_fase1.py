@@ -1,25 +1,4 @@
-"""Verificación de la Fase 1 — el modelo del problema.
-
-Se corre desde la raíz del repositorio:
-
-    python -m verificaciones.verificar_fase1
-
-Comprueba, para los cinco niveles:
-
-  1. Que se parseen sin errores.
-  2. Que la cantidad de cajas, metas y celdas transitables coincida con la tabla
-     de docs/03_NUMEROS_DE_ORO.md.
-  3. Que haya tantas cajas como metas.
-  4. Ida y vuelta: dibujar el estado inicial y volver a parsearlo da el mismo
-     problema.
-  5. Que los sucesores del estado inicial sean legales: ninguno atraviesa una
-     pared ni superpone dos cajas.
-  6. Que una solución de 8 movimientos de N1, construida a mano, llegue a meta
-     con 5 empujes: contrasta el modelo de transición contra la verdad externa.
-
-Termina con código de salida 0 si todo pasa y 1 si algo falla, para poder
-encadenarlo en un script sin leer la salida.
-"""
+"""Verificación de la Fase 1 — el modelo del problema."""
 
 import sys
 from pathlib import Path
@@ -31,8 +10,6 @@ from src.modelo.tablero import ABAJO, ARRIBA, DERECHA, NOMBRE_DIR
 RAIZ = Path(__file__).resolve().parent.parent
 NIVELES = RAIZ / 'niveles'
 
-# (archivo, cajas, celdas transitables) según docs/03_NUMEROS_DE_ORO.md.
-# Las metas tienen que ser tantas como las cajas, así que no se listan aparte.
 ESPERADO = (
     ('n1_micro.sok', 1, 12),
     ('n2_akk04.sok', 4, 32),
@@ -41,14 +18,8 @@ ESPERADO = (
     ('n5_limite.sok', 4, 41),
 )
 
-# Solución de N1 construida a mano: game-sokoban.com publica el TAMAÑO del
-# récord (8 movimientos / 5 empujes), no el camino, así que este camino es
-# nuestro. Que coincida con el récord en las dos cifras es lo que lo hace útil:
-# contrasta el modelo de transición contra una verdad externa sin que exista
-# todavía ninguna búsqueda. Si el parser pusiera una pared de más, o si empujar
-# estuviera mal implementado, esta secuencia dejaría de llegar a meta.
 SOLUCION_N1 = (DERECHA, DERECHA, ARRIBA, DERECHA, ABAJO, ABAJO, ABAJO, ABAJO)
-ESTADOS_N1 = len(SOLUCION_N1) + 1  # el inicial, más uno por cada movimiento
+ESTADOS_N1 = len(SOLUCION_N1) + 1
 EMPUJES_N1 = 5
 
 
@@ -72,8 +43,6 @@ def _verificar_ida_y_vuelta(tablero: Tablero, estado: Estado) -> list[str]:
         errores.append('las metas cambian al reparsear')
     if estado2 != estado:
         errores.append(f'el estado cambia al reparsear: {estado} -> {estado2}')
-    # Segunda vuelta: si dibujar no es idempotente, el reproductor de la Fase 7
-    # mostraría tableros que no se corresponden con los que recorrió la búsqueda.
     if not errores and tablero2.dibujar(estado2) != texto:
         errores.append('dibujar no es idempotente: el segundo dibujo difiere del primero')
     return errores
@@ -175,12 +144,7 @@ def verificar_nivel(archivo: str, cajas_esperadas: int, celdas_esperadas: int) -
 
 
 def verificar_solucion_n1() -> bool:
-    """Ejecuta la solución de N1 y comprueba que llegue a meta con 5 empujes.
-
-    Es la comprobación más fuerte de la fase. Las otras cinco verifican que el
-    modelo sea coherente consigo mismo; ésta lo verifica contra el récord humano
-    publicado, que es la única verdad que no sale de nuestro código.
-    """
+    """Ejecuta la solución de N1 y comprueba que llegue a meta con 5 empujes."""
     archivo = 'n1_micro.sok'
     tablero, inicial = leer_archivo(NIVELES / archivo)
     problema = Problema(tablero, inicial)
@@ -193,8 +157,6 @@ def verificar_solucion_n1() -> bool:
         print(f'    FALLA: {e}')
         return False
 
-    # El jugador mueve a lo sumo una caja por movimiento, así que contar los
-    # pasos en los que cambió el conjunto de cajas es contar los empujes.
     empujes = sum(1 for antes, despues in zip(estados, estados[1:])
                   if antes.cajas != despues.cajas)
     llega_a_meta = problema.es_meta(estados[-1])

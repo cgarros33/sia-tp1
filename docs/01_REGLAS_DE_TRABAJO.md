@@ -151,24 +151,51 @@ Un número que cambia después de un refactor es la señal de que el refactor
 cambió el comportamiento. Puede estar bien o mal, pero hay que entender cuál de
 las dos antes de seguir.
 
-## 8. Estilo de los comentarios
+## 8. El código va sin comentarios
 
-Los comentarios explican **por qué**, no **qué**.
+El código se explica solo. Los nombres son largos y en castellano justamente
+para eso, y quien lo lee ya sabe leer Python. **Las explicaciones viven en
+`docs/resumenes/`**: qué se construyó, por qué existe cada archivo, qué decisión
+hay detrás y qué alternativa se descartó. Ahí es donde el grupo las va a buscar,
+y ahí es donde tienen espacio para estar bien escritas.
+
+Un comentario se justifica sólo en dos casos:
+
+- **Una cuenta que no se lee del código.** Por qué una constante vale lo que
+  vale, por qué una condición está en un bucle, qué se eligió cuando había dos
+  opciones numéricas posibles.
+- **Una regla que, si alguien la borra, rompe algo.** Ejemplo real: la cláusula
+  "alguna caja fuera de meta" del detector de cuadrados de 2x2. Sin ella se
+  poda el estado meta de `n4_matching` y el nivel devuelve "sin solución".
+
+Todo lo demás sobra.
 
 ```python
-# MAL — describe lo que ya se ve
+# MAL - describe lo que ya se ve
 # recorremos las cuatro direcciones
 for d in DIRECCIONES:
 
-# BIEN — explica la decisión
-# El orden de DIRECCIONES es fijo a propósito: DFS depende del orden en que
-# se generan los sucesores, así que fijarlo es lo que lo hace reproducible.
+# MAL - es una explicación de diseño: eso va al resumen de la fase
+# El orden de DIRECCIONES es fijo a propósito porque DFS depende del orden en
+# que se generan los sucesores, así que fijarlo es lo que lo hace reproducible.
 for d in DIRECCIONES:
+
+# BIEN - una condición que el código no explica por sí solo
+# Empujar exige que la celda de atrás esté libre: ahí va el jugador.
+if mover[q][d] == -1:
 ```
 
-Cada módulo abre con un docstring que responde: qué representa, qué decisión de
-diseño importante encierra, y qué alternativa se descartó. Esos docstrings son,
-literalmente, el guion del oral.
+**Docstrings: uno de una línea** por módulo, clase y función, diciendo qué es.
+Nada de secciones "QUÉ REPRESENTA", "LA DECISIÓN DE DISEÑO" o "QUÉ SE DESCARTÓ"
+dentro de un archivo `.py`.
+
+Única excepción: cuando una spec de `docs/fases/` pide explícitamente que algo
+quede escrito en un docstring. Son cuatro casos, todos señalados en el resumen
+de la fase que los pidió.
+
+La documentación no desapareció, se
+mudó a `docs/resumenes/`, que es su lugar. El código se limpió en la misma
+pasada en que se cambió la regla.
 
 ## 9. Cuando algo no cierra
 

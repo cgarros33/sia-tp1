@@ -1,11 +1,4 @@
-"""Las heurísticas, como instrumentos de medición del motor.
-
-La escalera de la Fase 4 —Manhattan, matching óptimo, distancias reales de
-empuje, término del jugador— se arma acá. `registro.py` es el índice de nombres;
-cada heurística de h₂ en adelante vive en su propio archivo junto con su
-demostración de admisibilidad, porque esa demostración es el entregable de la
-fase tanto como el código.
-"""
+"""Las heurísticas, como instrumentos de medición del motor."""
 
 from .distancias import celdas_muertas, distancias_manhattan
 from .h2_manhattan import h2

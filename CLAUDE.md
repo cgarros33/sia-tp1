@@ -43,6 +43,15 @@ rendir el oral.
 ## Estilo de código
 
 Python 3.11+, sin dependencias externas en `src/` salvo `numpy` y `scipy`
-(sólo para el matching húngaro de la Fase 4). Los comentarios explican **por
-qué**, no **qué**: quien lee el código ya sabe leer Python, lo que necesita es
-entender la decisión de diseño para poder defenderla.
+(sólo para el matching húngaro de la Fase 4).
+
+**El código va sin comentarios.** Se explica solo: los nombres son largos y en
+castellano para eso. Las explicaciones —qué existe, por qué, qué se descartó—
+van en `docs/resumenes/`, nunca en los archivos `.py`.
+
+Se comenta sólo una cuenta que no se lee del código, o una regla que si alguien
+la borra rompe algo. Los docstrings son de **una línea**. Nada de secciones
+"QUÉ REPRESENTA" o "QUÉ SE DESCARTÓ" dentro del código.
+
+El detalle y el porqué del cambio están en `docs/01_REGLAS_DE_TRABAJO.md`,
+regla 8.

@@ -1,10 +1,4 @@
-"""Tests para el runner de la Fase 6.
-
-Organizados en tres niveles de rendimiento mediante marcas de pytest:
-- Light: pytest -q -m "not lento"
-- Medium: pytest -q -m "not completo"
-- Completa: pytest -q
-"""
+"""Tests para el runner de la Fase 6."""
 
 import csv
 import json
@@ -18,7 +12,7 @@ from tests.conftest import ESPERADO
 
 
 def _crear_y_ejecutar(config_dict: dict, tmp_path: Path) -> list[dict]:
-    """Helper que escribe la config temporal, ejecuta el runner y retorna las filas del CSV."""
+    """Escribe una config temporal, corre el runner y devuelve las filas del CSV."""
     cfg_file = tmp_path / "cfg.json"
     csv_file = tmp_path / "out.csv"
     with open(cfg_file, "w", encoding="utf-8") as f:
@@ -28,8 +22,6 @@ def _crear_y_ejecutar(config_dict: dict, tmp_path: Path) -> list[dict]:
         reader = csv.DictReader(f)
         return list(reader)
 
-
-# --- SUITE LIGHT -------------------------------------------------------------
 
 def test_csv_valido(tmp_path):
     """Verifica que el runner genere un CSV con las 17 columnas y valores válidos."""
@@ -95,8 +87,6 @@ def test_dfs_24_ordenes_light(tmp_path):
     assert all(r["exito"] == "True" for r in filas)
 
 
-# --- SUITE MEDIUM ------------------------------------------------------------
-
 @pytest.mark.lento
 @pytest.mark.parametrize("nivel", ["n4_matching", "n5_limite"])
 def test_costos_optimos_medium(nivel, tmp_path):
@@ -151,8 +141,6 @@ def test_dfs_24_ordenes_medium(nivel, tmp_path):
     ordenes = set(r["orden_sucesores"] for r in filas)
     assert len(ordenes) == 24
 
-
-# --- SUITE COMPLETA ----------------------------------------------------------
 
 @pytest.mark.lento
 @pytest.mark.completo

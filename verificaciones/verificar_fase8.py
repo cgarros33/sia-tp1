@@ -1,35 +1,4 @@
-"""Verificación de la Fase 8 — gráficos y análisis.
-
-Se corre desde la raíz del repositorio:
-
-    python3 -m verificaciones.verificar_fase8
-
-NO CORRE NINGUNA BÚSQUEDA. Regenera las cuatro figuras desde los CSV y comprueba
-lo que la fase promete. El barrido de w se corre aparte, con su propio comando:
-
-    python3 -m experimentos.barrido_w
-
-LAS CINCO COMPROBACIONES DEL CRITERIO DE ACEPTACIÓN
-
-  1. Las cuatro figuras se generan con un comando, desde los CSV, y quedan
-     escritas en PNG de proyección y en PDF vectorial.
-  2. El barrido de w está corrido y su CSV existe. Además se lo contrasta contra
-     el CSV de la Fase 6 en los dos puntos donde el HPA ES otro método: w = 0,5
-     tiene que dar A*(h5) y w = 1 tiene que dar Greedy(h5), exactos. Si no, el
-     barrido está midiendo otra cosa.
-  3. Regenerar es idempotente: se generan dos veces y se comparan los bytes.
-     Es la comprobación de que una figura de la presentación no cambia sola
-     entre dos personas que tienen el mismo CSV.
-  4. Ninguna figura tiene barras de error sobre datos determinísticos. Se
-     verifica sobre los DATOS, no sobre la imagen: se recorre el CSV y se
-     comprueba que la única serie con dos valores distintos para la misma
-     configuración es DFS.
-  5. Legibilidad: las figuras se reescalan al 50 % y se informa el tamaño
-     resultante, que es la aproximación más barata a verlas proyectadas desde
-     el fondo del aula. Que los rótulos se lean lo decide una persona.
-
-Termina con código de salida 0 si todo pasa y 1 si algo falla.
-"""
+"""Verificación de la Fase 8 — gráficos y análisis."""
 
 import collections
 import csv
@@ -41,7 +10,6 @@ from experimentos import graficos
 
 RAIZ = Path(__file__).resolve().parent.parent
 
-#: Las cuatro figuras que pide la fase, con la pregunta que contesta cada una.
 FIGURAS = (
     ('figura_1_metodos', '¿cuánto aporta cada método?'),
     ('figura_2_dominancia', '¿una heurística más informada expande menos nodos?'),
@@ -49,9 +17,6 @@ FIGURAS = (
     ('figura_4_el_muro', '¿por qué hay un límite y dónde está?'),
 )
 
-#: Las columnas que las figuras usan como si fueran determinísticas. Si alguna
-#: variara entre corridas de la misma configuración, la figura que la grafica sin
-#: barra de error estaría escondiendo variabilidad real.
 COLUMNAS_DETERMINISTICAS = ('costo', 'empujes', 'nodos_expandidos',
                             'nodos_generados', 'memoria_maxima')
 
@@ -134,8 +99,6 @@ def comprobar_2():
                     f'{medido} y {metodo}(h5) da {esperado}. En ese punto el HPA '
                     f'ES ese método, así que tienen que coincidir exactamente.')
 
-    # Con w <= 0,5 el HPA equivale a A* con h' = c·h y c <= 1: si h es admisible,
-    # h' también, así que la solución tiene que ser óptima.
     subóptimas = [f for f in barrido
                   if float(f['w']) <= 0.5 and f['costo'] != f['costo_optimo']]
     print(f'  corridas con w <= 0,5 y costo distinto del óptimo publicado: '
@@ -147,11 +110,7 @@ def comprobar_2():
 
 
 def comprobar_4():
-    """Ninguna figura pone barras de error sobre algo determinístico.
-
-    Se comprueba sobre los datos y no sobre las imágenes: se agrupan las filas
-    del CSV por configuración y se busca cuáles tienen más de un valor distinto.
-    """
+    """Ninguna figura pone barras de error sobre algo determinístico."""
     errores = []
     print('\n=== Comprobación 4 — barras de error sólo donde hay variabilidad ===')
     grupos = collections.defaultdict(list)
@@ -174,8 +133,6 @@ def comprobar_4():
         print(f'  {len(grupos)} configuraciones, ninguna varía sus '
               f'{len(COLUMNAS_DETERMINISTICAS)} columnas entre corridas   OK')
 
-    # DFS sí varía, pero entre PERMUTACIONES, no entre corridas: por eso es la
-    # única serie de la figura 1 que lleva bigotes.
     dfs = collections.defaultdict(list)
     for fila in graficos.leer(graficos.CSV_MATRIZ):
         if fila['metodo'] == 'DFS':

@@ -1,40 +1,4 @@
-"""Verificación de la Fase 7 — el reproductor estado por estado.
-
-Se corre desde la raíz del repositorio:
-
-    python3 -m verificaciones.verificar_fase7
-
-Genera todos los archivos de `presentacion/` y los verifica. Tarda unos minutos,
-casi todos gastados en resolver `n5_limite` con BFS.
-
-LAS CINCO COMPROBACIONES DEL CRITERIO DE ACEPTACIÓN
-
-  1. El GIF de N1 existe y SE ABRE. No alcanza con que el archivo esté: se lo
-     vuelve a leer con Pillow y se cuentan sus fotogramas. Un GIF corrupto pesa
-     y existe igual.
-  2. La cantidad de fotogramas de cada GIF es `costo + 1`, uno por estado,
-     contando el inicial y el final. Se comprueba contra el archivo releído, no
-     contra la lista que se usó para escribirlo.
-  3. El último estado tiene todas las cajas sobre metas. Se verifica sobre los
-     estados, antes de renderizar: si el camino no termina en meta, el problema
-     no es del dibujo.
-  4. La cantidad de fotogramas marcados como empuje coincide con los empujes que
-     reportó el motor, que son los récords publicados: 5 · 18 · 22 · 22 · 99. Es
-     la comprobación de que el reproductor lee la solución y no la inventa.
-  5. Los archivos pesan poco. Un GIF que pase de 2 MB va a un repositorio que
-     usan cuatro personas y no entra en ninguna diapositiva.
-
-POR QUÉ LAS SOLUCIONES SALEN DE BFS Y NO DE A\\*
-    A\\* con h₅ y poda resolvería `n5_limite` en 426.808 nodos en vez de
-    2.028.239, y la verificación tardaría bastante menos. Pero un nivel puede
-    tener varias soluciones óptimas distintas, con el mismo costo y DISTINTA
-    cantidad de empujes, y BFS es el método cuyo costo Y empujes están
-    contrastados contra el récord publicado en game-sokoban.com. Es lo que hace
-    que la comprobación 4 valga contra la tabla de `docs/03_NUMEROS_DE_ORO.md` y
-    no sólo contra sí misma.
-
-Termina con código de salida 0 si todo pasa y 1 si algo falla.
-"""
+"""Verificación de la Fase 7 — el reproductor estado por estado."""
 
 import sys
 from pathlib import Path
@@ -52,19 +16,9 @@ NIVELES = RAIZ / 'niveles'
 ANIMACIONES = RAIZ / 'presentacion' / 'animaciones'
 TIRAS = RAIZ / 'presentacion' / 'tiras'
 
-#: Un GIF más pesado que esto no entra en una diapositiva ni en un repositorio
-#: compartido. Es el criterio 5, escrito como número.
 LIMITE_BYTES = 2 * 1024 * 1024
 
-# Qué se genera por nivel, con el costo y los empujes publicados. Sale de la
-# tabla "Qué generar" de la especificación.
-#
-# Los milisegundos por paso bajan a medida que la solución se alarga: 400 ms es
-# cómodo para mirar 8 movimientos y son 42 segundos de GIF para los 104 de N3,
-# que es más de lo que dura la diapositiva. N4 y N5 no llevan GIF: 306
-# movimientos no se muestran animados de ninguna manera.
 PLAN = (
-    # archivo, costo, empujes, ms por paso (None = sin GIF), criterio de la tira
     ('n1_micro.sok', 8, 5, 400, 'todos'),
     ('n2_akk04.sok', 45, 18, 300, None),
     ('n3_caminata.sok', 104, 22, 200, None),
@@ -85,13 +39,7 @@ def _kb(bytes_) -> str:
 
 
 def _tira_ascii(tablero, estados, pasos, total, por_fila=5) -> str:
-    """La tira, pero en texto XSB, para revisarla sin abrir ningún archivo.
-
-    Es la forma más rápida de que alguien controle que el reproductor dibuja lo
-    que dice dibujar: `Tablero.dibujar()` existe desde la Fase 1 y es una
-    implementación distinta de la de `render.py`, así que si las dos coinciden,
-    coinciden por el estado y no por el código.
-    """
+    """La tira, pero en texto XSB, para revisarla sin abrir ningún archivo."""
     bloques = []
     for paso in pasos:
         empuje = paso > 0 and estados[paso].cajas != estados[paso - 1].cajas
@@ -133,7 +81,6 @@ def verificar_nivel(archivo, costo, empujes, ms_por_paso, criterio):
                           ANIMACIONES / f'{nombre}.gif',
                           ms_por_paso=ms_por_paso, titulo=nombre)
 
-        # Comprobaciones 1 y 2: el archivo se relee y se cuentan SUS fotogramas.
         try:
             with Image.open(gif.ruta) as abierto:
                 fotogramas_en_disco = abierto.n_frames
@@ -146,16 +93,13 @@ def verificar_nivel(archivo, costo, empujes, ms_por_paso, criterio):
                 f'el GIF tiene {fotogramas_en_disco} fotogramas y la solución '
                 f'tiene {costo} movimientos: tendría que haber {costo + 1}, uno '
                 f'por estado.')
-        # Comprobación 4.
         if gif.empujes != empujes:
             errores.append(
                 f'el GIF marca {gif.empujes} fotogramas como empuje y el motor '
                 f'reportó {empujes}. El reproductor está leyendo mal la solución.')
-        # Comprobación 3.
         if not gif.ultimo_es_meta:
             errores.append('el último estado del GIF no tiene todas las cajas '
                            'sobre metas.')
-        # Comprobación 5.
         if gif.bytes > LIMITE_BYTES:
             errores.append(f'el GIF pesa {_kb(gif.bytes)}, más que el límite de '
                            f'{_kb(LIMITE_BYTES)}. Bajar la resolución.')

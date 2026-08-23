@@ -1,9 +1,4 @@
-"""Motor de búsqueda genérico y los cinco métodos.
-
-La regla de este paquete: `motor.py` no sabe qué es una pared y `modelo/` no
-sabe qué es una frontera. Esa separación es lo que permite que los cinco
-métodos corran exactamente el mismo código de expansión.
-"""
+"""Motor de búsqueda genérico y los cinco métodos."""
 
 from .nodo import Nodo
 from .frontera import Frontera, FronteraFIFO, FronteraLIFO, FronteraPrioridad

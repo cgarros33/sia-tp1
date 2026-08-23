@@ -1,39 +1,4 @@
-"""Verificación de la Fase 2 — motor genérico y los cinco métodos.
-
-Se corre desde la raíz del repositorio:
-
-    python -m verificaciones.verificar_fase2
-
-Tarda dos o tres minutos: N5 con BFS son dos millones de nodos, y la tabla
-completa corre seis configuraciones por nivel. Va imprimiendo cada nivel a
-medida que lo termina.
-
-Las cinco comprobaciones del criterio de aceptación:
-
-  1. BFS reproduce los números de oro: costo y empujes exactos contra
-     docs/03_NUMEROS_DE_ORO.md.
-  2. A*(h0) es idéntico a BFS: mismo costo y MISMA CANTIDAD EXACTA de nodos
-     expandidos. Es la invariante que separa bugs del motor de bugs de
-     heurísticas, y el primer test que hay que correr cuando algo no cierra.
-  3. Las soluciones son ejecutables: pasarlas por reconstruir_estados() termina
-     en meta y da costo + 1 estados.
-  4. Los métodos no óptimos se comportan como se espera: DFS nunca por debajo
-     del óptimo, Greedy expande menos que BFS con costo mayor o igual.
-  5. IDDFS expande muchos más nodos que BFS y mantiene una frontera mucho más
-     chica — pero su MEMORIA TOTAL (frontera + visitados) no es menor en
-     ningún nivel de forma apreciable. Ver el resumen de la fase: es el
-     resultado más interesante que dio esta verificación.
-
-Todos los métodos se cortan por LÍMITE DE NODOS, nunca por reloj. Un límite de
-nodos es determinístico y el reloj no: con timeout, dos corridas de IDDFS en N4
-daban 3.453.866 y 1.798.624 nodos. El límite sale de config.json, así que es el
-mismo número para todos los métodos y está en un archivo versionado.
-
-Y además, porque la Fase 4 las va a necesitar seis veces: admisibilidad y
-consistencia de h0 y h1 sobre el camino óptimo de los cinco niveles.
-
-Termina con código de salida 0 si todo pasa y 1 si algo falla.
-"""
+"""Verificación de la Fase 2 — motor genérico y los cinco métodos."""
 
 import sys
 from pathlib import Path
@@ -47,22 +12,6 @@ from verificaciones.admisibilidad import informatividad, verificar_heuristica
 RAIZ = Path(__file__).resolve().parent.parent
 NIVELES = RAIZ / 'niveles'
 
-# (archivo, movimientos óptimos, empujes óptimos, exigir DFS estrictamente
-#  peor, correr el IDDFS sin visitados)
-#
-# Los dos números salen de docs/03_NUMEROS_DE_ORO.md y son verdad externa: son
-# los récords publicados por jugadores humanos en game-sokoban.com.
-#
-# N1 es la excepción del test de DFS y está documentada: es un pasillo de 12
-# celdas donde la topología deja un solo camino, así que DFS cae en el óptimo
-# sin buscarlo. Corriendo DFS con los 24 órdenes posibles de DIRECCIONES, N1 da
-# 8 en los 24. En N2 el rango de esos mismos 24 órdenes es 113-181 contra un
-# óptimo de 45, y en N3 es 164-448 contra 104: ahí el test estricto es seguro.
-#
-# El IDDFS sin visitados sólo se corre en N1: es el único de la suite donde
-# termina. Que no termine en los otros cuatro es justamente lo que se quiere
-# mostrar, y correrlo ahí sería quemar el límite de nodos para no aprender nada
-# que no sepamos ya.
 ESPERADO = (
     ('n1_micro.sok', 8, 5, False, True),
     ('n2_akk04.sok', 45, 18, True, False),
@@ -71,10 +20,6 @@ ESPERADO = (
     ('n5_limite.sok', 306, 99, True, False),
 )
 
-# El techo es el MISMO para todos los métodos y sale de config.json, no de una
-# constante escondida acá: así el número que corta las corridas es un dato
-# versionado del proyecto y no una decisión de este script. Se espera que IDDFS
-# lo alcance en N4 y N5, y eso ES un resultado del TP.
 MAX_NODOS = cargar_config(RAIZ / 'config.json')['max_nodos']
 
 
@@ -99,12 +44,7 @@ def _fila(metodo, resultado, nota=''):
 
 
 def _verificar_ejecutable(problema, resultado) -> list[str]:
-    """Comprobación 3: la secuencia de acciones lleva de verdad del inicial a la meta.
-
-    Atrapa errores en la reconstrucción del camino, que el costo por sí solo no
-    detecta: un `padre` mal enganchado puede dar un número correcto y un camino
-    que no se puede caminar.
-    """
+    """Comprobación 3: la secuencia de acciones lleva del inicial a la meta."""
     if not resultado.exito:
         return []
     try:
@@ -141,7 +81,7 @@ def _verificar_heuristicas(problema, camino_optimo) -> list[str]:
 
 def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
                     corre_iddfs_puro=False):
-    """Corre las seis configuraciones sobre un nivel, imprime la tabla y devuelve errores."""
+    """Corre las seis configuraciones sobre un nivel y devuelve los errores."""
     tablero, inicial = leer_archivo(NIVELES / archivo)
     problema = Problema(tablero, inicial)
     h0 = construir('h0', problema)
@@ -153,7 +93,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     print(f'{"método":<12}{"costo":>6}{"empujes":>9}{"expandidos":>12}'
           f'{"front.máx":>11}{"memoria":>11}{"tiempo":>10}  resultado')
 
-    # --- 1. BFS contra los números de oro ---
     r_bfs = bfs(problema, max_nodos=MAX_NODOS, nivel=archivo)
     nota = 'OK'
     if not r_bfs.exito:
@@ -172,7 +111,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
         print()
         return errores, None
 
-    # --- 2. el test de control del motor: A*(h0) tiene que ser BFS ---
     r_h0 = a_estrella(problema, h0, 'h0', max_nodos=MAX_NODOS, nivel=archivo)
     identico = (r_h0.exito and r_h0.costo == r_bfs.costo
                 and r_h0.nodos_expandidos == r_bfs.nodos_expandidos)
@@ -189,7 +127,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     _fila('A*(h0)', r_h0, nota)
     errores += _verificar_ejecutable(problema, r_h0)
 
-    # --- A*(h1): sigue siendo óptimo, y se ve cuánto (poco) ayuda h1 ---
     r_h1 = a_estrella(problema, h1, 'h1', max_nodos=MAX_NODOS, nivel=archivo)
     if r_h1.exito and r_h1.costo == costo_optimo:
         ahorro = 100 * (1 - r_h1.nodos_expandidos / r_bfs.nodos_expandidos)
@@ -201,7 +138,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     _fila('A*(h1)', r_h1, nota)
     errores += _verificar_ejecutable(problema, r_h1)
 
-    # --- 4a. Greedy: más rápido, peor solución ---
     r_greedy = greedy(problema, h1, 'h1', max_nodos=MAX_NODOS, nivel=archivo)
     if not r_greedy.exito:
         nota = f'FALLA: {r_greedy.motivo_fin}'
@@ -223,7 +159,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     _fila('Greedy(h1)', r_greedy, nota)
     errores += _verificar_ejecutable(problema, r_greedy)
 
-    # --- 4b. DFS: encuentra UNA solución, no la mejor ---
     r_dfs = dfs(problema, max_nodos=MAX_NODOS, nivel=archivo)
     if not r_dfs.exito:
         nota = f'FALLA: {r_dfs.motivo_fin}'
@@ -243,7 +178,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     _fila('DFS', r_dfs, nota)
     errores += _verificar_ejecutable(problema, r_dfs)
 
-    # --- 5. IDDFS: la memoria de DFS con la optimalidad de BFS ---
     r_iddfs = iddfs(problema, max_nodos=MAX_NODOS, nivel=archivo)
     if not r_iddfs.exito:
         nota = f'{r_iddfs.motivo_fin} (esperado en N4 y N5), {len(r_iddfs.iteraciones)} iteraciones'
@@ -262,9 +196,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
             nota = 'FALLA: ' + '; '.join(problemas)
             errores.append(f'IDDFS: {"; ".join(problemas)}')
         else:
-            # La frontera se compara aparte de la memoria total A PROPÓSITO: es
-            # la diferencia entre lo que promete el método y lo que entrega
-            # cuando se le agrega detección de repetidos.
             frontera = r_bfs.frontera_maxima / r_iddfs.frontera_maxima
             trabajo = r_iddfs.nodos_expandidos / r_bfs.nodos_expandidos
             memoria = r_iddfs.memoria_maxima / r_bfs.memoria_maxima
@@ -277,9 +208,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
         ultimas = ', '.join(f'{limite}: {_n(nodos)}' for limite, nodos in r_iddfs.iteraciones[-3:])
         print(f'  IDDFS, últimas iteraciones (límite: nodos expandidos) — {ultimas}')
 
-    # --- IDDFS "de manual", sin estructura de visitados ---
-    # Sólo se corre donde puede terminar. En los demás niveles no termina, y ESO
-    # es el dato: sin tabla de transposiciones, Sokoban es impracticable.
     if corre_iddfs_puro:
         r_puro = iddfs_puro(problema, max_nodos=MAX_NODOS, nivel=archivo)
         if not r_puro.exito:
@@ -295,7 +223,6 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
         _fila('IDDFS puro', r_puro, nota)
         errores += _verificar_ejecutable(problema, r_puro)
 
-    # --- las heurísticas, sobre el camino óptimo que acaba de dar BFS ---
     camino_optimo = problema.reconstruir_estados(r_bfs.acciones)
     errores += _verificar_heuristicas(problema, camino_optimo)
     print()

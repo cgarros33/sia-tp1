@@ -1,19 +1,4 @@
-"""Verificación de la Fase 6 — Runner, configuración y CSV.
-
-Se corre desde la raíz del repositorio:
-
-    python3 -m verificaciones.verificar_fase6
-
-COMPROBACIONES DEL CRITERIO DE ACEPTACIÓN
-  1. El runner produce un CSV válido con todas las columnas esperadas.
-  2. Todos los métodos óptimos (BFS, IDDFS, A* admisible) coinciden con los
-     números de oro de game-sokoban.com.
-  3. DFS con `todas_las_direcciones` produce exactamente 24 permutaciones por nivel.
-  4. IDDFS en N4 y N5 agota los nodos (`motivo_fin = 'max_nodos'`).
-  5. Los tests existentes de la suite de regresión (`pytest`) se mantienen sin cambios.
-
-Termina con código de salida 0 si todo pasa y 1 si algo falla.
-"""
+"""Verificación de la Fase 6 — Runner, configuración y CSV."""
 
 import csv
 import json
@@ -27,7 +12,6 @@ sys.path.insert(0, str(RAIZ))
 
 from runner.runner import COLUMNAS_CSV, ejecutar_matriz
 
-# Récords publicados en game-sokoban.com (Fase 1 / docs/03_NUMEROS_DE_ORO.md)
 NUMEROS_DE_ORO = {
     "n1_micro": {"costo": 8, "empujes": 5},
     "n2_akk04": {"costo": 45, "empujes": 18},
@@ -170,7 +154,6 @@ def verificar_costos_y_dfs() -> list[str]:
             reader = csv.DictReader(f)
             filas = list(reader)
 
-    # 2. Costos óptimos
     filas_optimas = [
         r
         for r in filas
@@ -198,7 +181,6 @@ def verificar_costos_y_dfs() -> list[str]:
 
     print(f"   Métodos óptimos: {costos_ok}/{len(filas_optimas)} corridas validadas contra números de oro.")
 
-    # 3. DFS permutaciones
     dfs_n1 = [r for r in filas if r["metodo"] == "DFS" and r["nivel"] == "n1_micro"]
     dfs_n2 = [r for r in filas if r["metodo"] == "DFS" and r["nivel"] == "n2_akk04"]
 
@@ -213,7 +195,6 @@ def verificar_costos_y_dfs() -> list[str]:
         costos_dfs_n2 = set(int(r["costo"]) for r in dfs_n2 if r["exito"] == "True")
         print(f"   DFS en n2_akk04: 24 permutaciones distintas, {len(costos_dfs_n2)} costos distintos  OK")
 
-    # 4. IDDFS max_nodos en N4 y N5
     iddfs_n4 = [r for r in filas if r["metodo"] == "IDDFS" and r["nivel"] == "n4_matching"]
     iddfs_n5 = [r for r in filas if r["metodo"] == "IDDFS" and r["nivel"] == "n5_limite"]
 

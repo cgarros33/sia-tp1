@@ -1,26 +1,4 @@
-"""Lector de niveles en formato XSB, el estándar de Sokoban.
-
-QUÉ REPRESENTA
-    La frontera entre el archivo de texto y el modelo. Es el único lugar del
-    proyecto donde un nivel es todavía una cadena de caracteres.
-
-    #  pared          .  meta              (espacio) piso
-    $  caja           *  caja sobre meta
-    @  jugador        +  jugador sobre meta
-
-LA DECISIÓN DE DISEÑO
-    Validar y fallar temprano. Si no hay jugador, si no hay cajas, o si la
-    cantidad de cajas no coincide con la de metas, se lanza `NivelInvalido` con
-    un mensaje concreto. Un nivel mal transcripto que igual se parsea no da un
-    error: da una búsqueda que se comporta raro y que se depura durante horas
-    creyendo que el bug está en el motor.
-
-QUÉ SE DESCARTÓ
-    Aceptar cualquier carácter desconocido tratándolo como piso. Es la opción
-    "tolerante", y es exactamente la que convierte un typo en el archivo en un
-    número equivocado en la presentación. Acá un carácter que no es del formato
-    aborta la lectura diciendo en qué fila y columna está.
-"""
+"""Lector de niveles en formato XSB, el estándar de Sokoban."""
 
 from pathlib import Path
 
@@ -45,18 +23,7 @@ class NivelInvalido(Exception):
 
 
 def _extraer_filas(texto: str) -> list[str]:
-    """Se queda con las líneas del tablero y descarta todo lo demás.
-
-    Las líneas que empiezan con ';' son comentarios. Nuestros niveles las usan
-    para documentar de dónde salieron y cuál es el récord publicado, así que
-    tienen que sobrevivir en el archivo aunque acá se ignoren.
-
-    A cada fila se le sacan los espacios finales antes de armar el tablero. No
-    es por prolijidad: muchos editores los recortan solos, así que un nivel
-    donde el borde derecho dependa de un espacio final no es transcribible de
-    forma confiable. Como consecuencia, una línea que sólo tiene espacios queda
-    vacía y corta el bloque; el tablero es el primer bloque de líneas no vacías.
-    """
+    """Se queda con las líneas del tablero y descarta todo lo demás."""
     limpias = []
     for linea in texto.splitlines():
         if linea.lstrip().startswith(';'):
@@ -86,9 +53,6 @@ def leer_texto(texto: str, nombre: str = '') -> tuple[Tablero, Estado]:
 
     for f, fila in enumerate(filas):
         for c in range(ancho):
-            # Las filas cortas se rellenan con pared. Sin esto quedarían
-            # agujeros en el borde derecho y el jugador podría escaparse del
-            # tablero, que es el error clásico de leer XSB recortado.
             caracter = fila[c] if c < len(fila) else PARED
             if caracter not in CARACTERES_VALIDOS:
                 raise NivelInvalido(
@@ -130,7 +94,5 @@ def leer_texto(texto: str, nombre: str = '') -> tuple[Tablero, Estado]:
 def leer_archivo(ruta) -> tuple[Tablero, Estado]:
     """Lee un `.sok` del disco. El nombre del archivo queda como nombre del nivel."""
     ruta = Path(ruta)
-    # UTF-8 explícito: los comentarios de los niveles tienen acentos y en
-    # Windows la codificación por defecto no es UTF-8.
     texto = ruta.read_text(encoding='utf-8')
     return leer_texto(texto, nombre=ruta.name)

@@ -1,48 +1,10 @@
-"""Las cuatro figuras de la presentación, generadas desde los CSV.
-
-Se corre desde la raíz del repositorio:
-
-    python3 -m experimentos.graficos
-
-NO CORRE NINGUNA BÚSQUEDA. Lee `resultados.csv` —la matriz de la Fase 6— y
-`experimentos/barrido_w.csv` —el experimento de esta fase— y escribe en
-`presentacion/figuras/`. Que graficar y medir estén separados es lo que hace que
-regenerar una figura sea instantáneo y que dos personas con el mismo CSV
-obtengan exactamente la misma imagen.
-
-LO QUE ORGANIZA TODAS LAS FIGURAS: la advertencia de la cátedra
-    Si se analiza cómo se relacionan dos variables, las variables tienen que
-    tener sentido, y una correlación sirve cuando se mueve una variable y el
-    resto queda fijo. Cada figura de acá lleva escrito, en el docstring de su
-    función, qué va en cada eje y QUÉ SE MANTIENE FIJO. Donde no se puede
-    mantener fijo —comparar niveles distintos— se usan paneles separados en vez
-    de un eje compartido, para no sugerir una comparación que no es válida.
-
-BARRAS DE ERROR: SÓLO DONDE HAY VARIABILIDAD REAL
-    Nodos expandidos, costo y memoria son DETERMINÍSTICOS. No se asume: está
-    medido sobre las 645 filas de `resultados.csv`, donde ninguna configuración
-    varía sus nodos entre sus cinco corridas. Poner una barra de error encima
-    sería decorar con una incertidumbre que no existe.
-
-    La variabilidad real del proyecto está en dos lugares y en ninguno más: el
-    TIEMPO, que varía hasta un factor 3 con idénticos nodos, y DFS, que depende
-    del orden de sucesores. La figura 1 usa esa segunda, con las 24
-    permutaciones que corrió la Fase 6.
-
-LEGIBLE PROYECTADO
-    Fuentes grandes, líneas gruesas, sin grilla cargada, y ningún par de series
-    que se distinga sólo por color: siempre hay además marcador, relleno o
-    trazo distinto.
-"""
+"""Las cuatro figuras de la presentación, generadas desde los CSV."""
 
 import csv
 from pathlib import Path
 
 import matplotlib
 
-# Backend sin pantalla: esto escribe archivos, no abre ventanas. Va antes de
-# importar pyplot o matplotlib elige otro y falla en una máquina sin entorno
-# gráfico, que es justo donde alguien va a querer regenerar las figuras.
 matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt  # noqa: E402
@@ -52,22 +14,14 @@ FIGURAS = RAIZ / 'presentacion' / 'figuras'
 CSV_MATRIZ = RAIZ / 'resultados.csv'
 CSV_BARRIDO = RAIZ / 'experimentos' / 'barrido_w.csv'
 
-#: Paleta segura: ningún par se distingue sólo por rojo/verde, y son los mismos
-#: dos colores con los que el reproductor de la Fase 7 dibuja las cajas, así que
-#: las figuras y los GIF de la presentación se leen como una sola cosa.
 AZUL = '#2668AA'
 ARENA = '#E2A844'
 GRIS = '#5C6068'
 TINTA = '#2C2E34'
 
-#: Para las figuras con una serie por nivel. Es la paleta de Okabe-Ito, elegida
-#: porque NO contiene un par rojo/verde: el rojo directamente no está. Igual cada
-#: serie lleva además su propio marcador, así que la figura se lee en escala de
-#: grises.
 POR_NIVEL = ('#0072B2', '#E69F00', '#009E73', '#CC79A7', '#56B4E9')
 MARCADORES = ('o', 's', '^', 'D', 'v')
 
-#: Los cinco niveles en el orden de la narrativa, con su óptimo publicado.
 NIVELES = (
     ('n1_micro', 8),
     ('n2_akk04', 45),
@@ -103,12 +57,7 @@ def leer(ruta):
 
 
 def guardar(figura, nombre):
-    """Escribe la figura en PNG de proyección y en PDF vectorial.
-
-    `CreationDate=None` en el PDF no es un detalle: sin eso matplotlib le estampa
-    la fecha de generación y dos corridas con el mismo CSV producirían archivos
-    distintos, que es exactamente lo que el criterio 3 de la fase prohíbe.
-    """
+    """Escribe la figura en PNG de proyección y en PDF vectorial."""
     FIGURAS.mkdir(parents=True, exist_ok=True)
     png, pdf = FIGURAS / f'{nombre}.png', FIGURAS / f'{nombre}.pdf'
     figura.savefig(png, dpi=200)
@@ -117,10 +66,6 @@ def guardar(figura, nombre):
     return png, pdf
 
 
-# --- figura 1 — nodos expandidos por método y nivel -------------------------
-
-#: (etiqueta, método en el CSV, heurística, ¿devuelve el óptimo?, relleno). El
-#: relleno acompaña al color: ninguna serie se distingue SÓLO por color.
 METODOS_FIGURA_1 = (
     ('BFS', 'BFS', '—', True, ''),
     ('IDDFS', 'IDDFS', '—', True, '..'),
@@ -131,34 +76,7 @@ METODOS_FIGURA_1 = (
 
 
 def figura_1_metodos():
-    """Cuánto cuesta cada método, nivel por nivel.
-
-    EJES
-        X: el nivel, categórico, en el orden de la narrativa N1 a N5.
-        Y: nodos expandidos, LOGARÍTMICO. El rango real va de 8 a 3.000.000.
-
-    QUÉ SE MANTIENE FIJO
-        h₅ en los dos métodos informados y poda `completo` en los cinco. Lo
-        segundo es una decisión: en el CSV, BFS es el único método con las cuatro
-        capas, y comparar el BFS SIN poda (44.124 nodos en n2) contra un A* CON
-        poda (4.460) mezclaría el efecto del método con el de la poda en una sola
-        barra. Con todos en `completo`, la única diferencia entre dos barras del
-        mismo grupo es la política de la frontera, que es lo que la Fase 2 diseñó
-        para que fuera así.
-
-        Los niveles NO se comparan entre sí: son grupos separados. La pregunta
-        "por qué N5 necesita más que N3" la contesta la figura 4.
-
-    BARRAS DE ERROR SÓLO EN DFS
-        Es el único método con variabilidad real, porque depende del orden de
-        sucesores. La barra va a la media de las 24 permutaciones de DIRECCIONES
-        y los bigotes al mínimo y al máximo.
-
-        Y no son un intervalo de confianza: las 24 permutaciones son la POBLACIÓN
-        COMPLETA, no una muestra, así que el bigote es el rango exacto de lo que
-        puede pasar. Los otros cuatro métodos no llevan bigote porque sus cinco
-        corridas dan exactamente el mismo número.
-    """
+    """Cuánto cuesta cada método, nivel por nivel."""
     filas = [f for f in leer(CSV_MATRIZ) if f['deadlocks'] == 'completo']
     figura, panel = plt.subplots(figsize=(14, 6.4))
     ancho = 0.16
@@ -177,7 +95,6 @@ def figura_1_metodos():
                 sin_solucion.append((j, altura))
 
         posiciones = [j + (i - 2) * ancho for j in range(len(NIVELES))]
-        # Sólo DFS lleva bigotes: es el único cuyo mínimo y máximo difieren.
         barras = panel.bar(
             posiciones, alturas, ancho * 0.92,
             yerr=errores if metodo == 'DFS' else None,
@@ -186,9 +103,6 @@ def figura_1_metodos():
             hatch=relleno, label=etiqueta,
             error_kw=dict(ecolor=TINTA, elinewidth=1.6))
 
-        # Un método que agotó el límite de nodos NO resolvió el nivel. Dibujar su
-        # barra igual que las demás diría "IDDFS resolvió N5 con 3.000.000 de
-        # nodos", que es falso.
         for j, altura in sin_solucion:
             barras[j].set_hatch('***')
             panel.annotate('sin\nsolución', xy=(posiciones[j], altura * 1.15),
@@ -213,37 +127,11 @@ def figura_1_metodos():
     return guardar(figura, 'figura_1_metodos')
 
 
-# --- figura 2 — dominancia empírica de las heurísticas -----------------------
-
-#: La escalera de la Fase 4, en orden. Las dos no admisibles quedan afuera: el
-#: eje X es "qué fracción del costo real captura la heurística", y para una que
-#: sobreestima ese número pasa de 1 y deja de significar lo mismo.
 ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
 
 
 def figura_2_dominancia():
-    """¿Una heurística más informada expande menos nodos?
-
-    EJES
-        X: informatividad h(s₀)/óptimo. 0 es h₀, que no informa nada; 1 sería la
-           heurística perfecta.
-        Y: nodos expandidos por A*, LOGARÍTMICO.
-
-    QUÉ SE MANTIENE FIJO
-        El método (A*), la poda (`completo`), el nivel dentro de cada serie y el
-        motor. Lo único que cambia entre dos puntos de una misma línea es la
-        heurística, que es justamente la variable del eje X.
-
-        Cada nivel es una SERIE PROPIA, unida por una línea. La línea no
-        interpola nada —entre h₂ y h₃ no hay heurísticas intermedias— y está para
-        que la escalera se lea como una trayectoria y no como seis puntos
-        sueltos. Los niveles no se comparan entre sí en el eje Y.
-
-    LA INFORMATIVIDAD SE CALCULA ACÁ, Y NO ES UNA BÚSQUEDA
-        h(s₀) se obtiene evaluando la heurística en el estado inicial: cuesta
-        construir las tablas del nivel, que son unos pocos BFS sobre 12 a 41
-        celdas. El denominador es el óptimo publicado. No se resuelve nada.
-    """
+    """¿Una heurística más informada expande menos nodos?"""
     from src.deadlocks import construir as construir_detector
     from src.heuristicas import construir as construir_heuristica
     from src.modelo import Problema, leer_archivo
@@ -265,15 +153,9 @@ def figura_2_dominancia():
                               if f['nivel'] == nivel and f['heuristica'] == nombre)))
 
         absoluto.plot(x, y, marker=marcador, color=color, label=nivel, linewidth=1.8)
-        # El panel derecho divide por A*(h0), que es el mismo nivel sin ninguna
-        # información heurística. Sin eso la pregunta de la figura no se puede
-        # contestar mirando: en el panel izquierdo cada nivel vive en su propia
-        # banda del eje y las cinco trayectorias parecen planas.
         relativo.plot(x, [yi / y[0] for yi in y], marker=marcador, color=color,
                       label=nivel, linewidth=1.8)
         for i, (xi, yi, nombre) in enumerate(zip(x, y, ESCALERA)):
-            # Los rótulos alternan arriba y abajo: h₃, h₄ y h₅ caen casi encima
-            # unos de otros en varios niveles y con un solo offset se pisan.
             desplazamiento = (5, 7) if i % 2 == 0 else (5, -14)
             relativo.annotate(nombre, xy=(xi, yi / y[0]), xytext=desplazamiento,
                               textcoords='offset points', fontsize=10, color=GRIS)
@@ -295,9 +177,6 @@ def figura_2_dominancia():
     return guardar(figura, 'figura_2_dominancia')
 
 
-# --- figura 4 — el muro ------------------------------------------------------
-
-#: (nivel, celdas transitables, cajas). Los cinco de la suite más el descartado.
 GEOMETRIA = (
     ('n1_micro', 12, 1),
     ('n2_akk04', 32, 4),
@@ -305,11 +184,7 @@ GEOMETRIA = (
     ('n4_matching', 31, 4),
     ('n5_limite', 41, 4),
 )
-#: ABHT 02 · 03 (lid 37955). No entra en la batería: ver docs/03_NUMEROS_DE_ORO.md.
 DESCARTADO = ('ABHT 02·03', 89, 5)
-#: Lo que expandió A* con matching y poda antes de agotarse en ese nivel. Como
-#: A* con poda expande MENOS que BFS, el número real de BFS es todavía mayor:
-#: se dibuja como cota inferior, no como medición.
 DESCARTADO_NODOS = 3_000_000
 
 
@@ -321,40 +196,12 @@ def _combinatorio(n, k):
 
 
 def espacio_de_estados(celdas, cajas):
-    """`celdas × C(celdas, cajas)`, la fórmula de `docs/03_NUMEROS_DE_ORO.md`.
-
-    Cuenta dónde puede estar el jugador por dónde puede estar cada conjunto de
-    cajas. Sobreestima —incluye configuraciones inalcanzables— y por eso es una
-    ESTIMACIÓN del tamaño del espacio, no su tamaño.
-    """
+    """`celdas × C(celdas, cajas)`, la fórmula de `docs/03_NUMEROS_DE_ORO.md`."""
     return celdas * _combinatorio(celdas, cajas)
 
 
 def figura_4_el_muro():
-    """Dónde está el límite del método, y por qué es combinatorio.
-
-    EJES
-        X: tamaño estimado del espacio de estados, `celdas × C(celdas, cajas)`,
-           LOGARÍTMICO.
-        Y: nodos expandidos por BFS, LOGARÍTMICO.
-
-    QUÉ SE MANTIENE FIJO
-        El método —BFS, sin poda— en los seis puntos. Se usa BFS y no A* porque
-        es el único que no depende de ninguna heurística: mide el tamaño del
-        problema, no lo bien que lo atacamos. Y se usa SIN poda por lo mismo, que
-        es la versión cuyos números están congelados desde la Fase 3.
-
-        Acá los niveles SÍ se comparan entre sí, y es válido justamente porque el
-        eje X es lo que los distingue: la variable que cambia está en el gráfico
-        en vez de estar escondida.
-
-    EL PUNTO DESCARTADO ES UNA COTA, NO UNA MEDICIÓN
-        De ABHT 02·03 no tenemos un número de BFS: tenemos que A* con matching y
-        poda expandió 3.000.000 de nodos sin terminar. Como A* con poda expande
-        MENOS que BFS, el número de BFS sería todavía mayor. Se dibuja con una
-        flecha hacia arriba: lo que se afirma es "≥ 3.000.000", que es lo único
-        que se puede afirmar.
-    """
+    """Dónde está el límite del método, y por qué es combinatorio."""
     bfs = {f['nivel']: int(f['nodos_expandidos']) for f in leer(CSV_MATRIZ)
            if f['metodo'] == 'BFS' and f['deadlocks'] == 'ninguno' and f['corrida'] == '1'}
 
@@ -362,8 +209,6 @@ def figura_4_el_muro():
     x = [espacio_de_estados(c, k) for _, c, k in GEOMETRIA]
     y = [bfs[nivel] for nivel, _, _ in GEOMETRIA]
 
-    # La posición del rótulo se elige a mano por nivel: n2 y n4 tienen un vecino
-    # arriba a la derecha y el rótulo por defecto le pasa por encima al marcador.
     ROTULOS = {'n2_akk04': (11, 10, 'bottom'), 'n4_matching': (11, -8, 'top')}
     for (nivel, celdas, cajas), xi, yi in zip(GEOMETRIA, x, y):
         panel.scatter(xi, yi, s=190, color=AZUL, edgecolor=TINTA, zorder=3,
@@ -395,8 +240,6 @@ def figura_4_el_muro():
                     fontsize=16)
     panel.set_ylim(bottom=6, top=DESCARTADO_NODOS * 30)
     panel.set_xlim(right=x_descartado * 25)
-    # La comparación que cierra el argumento: mismo largo de solución no es mismo
-    # esfuerzo, y el que manda es la cantidad de cajas.
     panel.annotate('N3 resuelve 104 movimientos con 6.360 nodos;\n'
                    'N5 resuelve 306 con 2.028.239.\n'
                    'La diferencia no es el largo: es 2 cajas contra 4.',
@@ -405,32 +248,8 @@ def figura_4_el_muro():
     return guardar(figura, 'figura_4_el_muro')
 
 
-# --- figura 3 — el barrido de w ---------------------------------------------
-
 def figura_3_barrido():
-    """El compromiso entre calidad de la solución y esfuerzo de búsqueda.
-
-    EJES
-        X:            w, de 0 a 1.
-        Y izquierdo:  costo de la solución en MOVIMIENTOS, lineal, con el óptimo
-                      publicado como línea horizontal punteada.
-        Y derecho:    nodos expandidos, LOGARÍTMICO — en n4 el rango va de 219 a
-                      60.308.
-
-    QUÉ SE MANTIENE FIJO
-        Dentro de cada panel, todo salvo w: el nivel, h₅, la poda completa, el
-        límite de nodos, el orden de DIRECCIONES, el desempate de la frontera y
-        el motor. Es el experimento controlado del TP.
-
-        Los tres niveles van en PANELES SEPARADOS y no en un eje compartido:
-        comparar los 60.308 nodos de n4 contra los 1.806 de n3 en el mismo eje
-        sugeriría que la diferencia la hace w, cuando la hace el nivel.
-
-    POR QUÉ LAS DOS SERIES VAN JUNTAS
-        Por separado ninguna contesta la pregunta. Los nodos solos dicen "más w
-        es mejor" y el costo solo dice "más w es peor"; lo que interesa es cuánto
-        se paga por apurar la búsqueda, y eso es la relación entre las dos.
-    """
+    """El compromiso entre calidad de la solución y esfuerzo de búsqueda."""
     filas = leer(CSV_BARRIDO)
     niveles = sorted({f['nivel'] for f in filas},
                      key=lambda n: [x[0] for x in NIVELES].index(n))
@@ -451,28 +270,17 @@ def figura_3_barrido():
         panel.annotate(f'óptimo = {optimo}', xy=(0.02, optimo), xytext=(0, 5),
                        textcoords='offset points', va='bottom', color=AZUL,
                        fontsize=11)
-        # El eje de costo arranca en CERO. Con autoescala, en n3 iría de 104 a
-        # 108 y una penalización de 4 movimientos sobre 104 —un 3,8 %— se vería
-        # como un salto vertical enorme. El costo tiene un cero con significado,
-        # así que empezar ahí es lo que hace que los tres paneles se puedan leer
-        # con la misma vara.
         panel.set_ylim(0, max(costo) * 1.22)
         panel.set_xlabel('w   en   f = (1−w)·g + w·h')
         panel.set_ylabel('costo de la solución (movimientos)', color=AZUL)
         panel.tick_params(axis='y', labelcolor=AZUL)
         panel.set_title(nivel, pad=30)
 
-        # Cuánto peor es la solución de Greedy que el óptimo. Es EL número de la
-        # figura y leerlo del gráfico exige mirar dos veces; escrito, no. Va
-        # ARRIBA del área de datos y no adentro: adentro lo tapaba la curva de
-        # nodos en n2, justo en el panel donde el número es más grande.
         exceso = 100 * (costo[-1] / optimo - 1)
         panel.annotate(f'Greedy: {costo[-1]} contra {optimo}   ({exceso:+.0f} %)',
                        xy=(0.5, 1.015), xycoords='axes fraction', ha='center',
                        va='bottom', fontsize=11, color=TINTA)
 
-        # El segundo eje comparte X y no Y: son magnitudes distintas y una de las
-        # dos es logarítmica.
         derecho = panel.twinx()
         derecho.plot(w, nodos, color=ARENA, marker='s', linestyle='--',
                      label='nodos expandidos', zorder=3)
@@ -481,8 +289,6 @@ def figura_3_barrido():
         derecho.tick_params(axis='y', labelcolor=ARENA)
         derecho.grid(False)
 
-        # Los tres puntos que la spec pide marcar. Son los que conectan el
-        # barrido con los métodos que ya se midieron por separado.
         for x, etiqueta, alineacion in ((0.0, 'costo uniforme', 'left'),
                                         (0.5, 'A*', 'center'),
                                         (1.0, 'Greedy', 'right')):
@@ -492,8 +298,6 @@ def figura_3_barrido():
                            bbox=dict(facecolor='white', alpha=0.8, edgecolor='none',
                                      boxstyle='square,pad=0.15'))
 
-    # Una sola leyenda para los tres paneles: la codificación es la misma en
-    # todos y repetirla tres veces gasta espacio en lo único que no cambia.
     figura.legend(handles=[
         plt.Line2D([], [], color=AZUL, marker='o', label='costo (movimientos), eje izq.'),
         plt.Line2D([], [], color=ARENA, marker='s', linestyle='--',

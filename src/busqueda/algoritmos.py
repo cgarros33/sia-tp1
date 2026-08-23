@@ -1,20 +1,4 @@
-"""Los cinco métodos. Cada uno es una elección de frontera más una política.
-
-Fijate lo cortos que quedan: toda la lógica vive en `motor.py`. Eso NO es una
-casualidad de estilo, es el punto de la arquitectura de la fase — si alguno de
-estos métodos necesitara su propio bucle, la comparación entre ellos dejaría de
-ser justa.
-
-| función      | frontera              | política  | ¿óptimo?                  |
-|--------------|-----------------------|-----------|---------------------------|
-| bfs          | FIFO                  | cerrado   | sí, porque el costo es 1  |
-| dfs          | LIFO                  | cerrado   | no                        |
-| iddfs        | LIFO + límite         | mejor_g   | sí                        |
-| iddfs_puro   | LIFO + límite         | camino    | sí, pero sólo termina N1  |
-| greedy       | prioridad (0, 1)      | cerrado   | no                        |
-| a_estrella   | prioridad (1, 1)      | mejor_g   | sí si h es admisible      |
-| hpa          | prioridad (1-w, w)    | según w   | sí sólo si w <= 0.5       |
-"""
+"""Los cinco métodos. Cada uno es una elección de frontera más una política."""
 
 import time
 
@@ -23,12 +7,7 @@ from .motor import CAMINO, CERRADO, MEJOR_G, Resultado, buscar
 
 
 def bfs(problema, max_nodos=None, timeout_s=None, nivel='') -> Resultado:
-    """Primero en anchura. Óptimo acá porque todo movimiento cuesta 1.
-
-    Es la vara del proyecto: sus costos se contrastan contra los récords
-    publicados en game-sokoban.com, y sus nodos expandidos se congelan como
-    referencia de regresión en la Fase 3.
-    """
+    """Primero en anchura. Óptimo acá porque todo movimiento cuesta 1."""
     return buscar(problema, FronteraFIFO(), politica=CERRADO,
                   max_nodos=max_nodos, timeout_s=timeout_s,
                   metodo='BFS', nivel=nivel)
@@ -36,12 +15,7 @@ def bfs(problema, max_nodos=None, timeout_s=None, nivel='') -> Resultado:
 
 def dfs(problema, limite_profundidad=None, max_nodos=None, timeout_s=None,
         nivel='') -> Resultado:
-    """Primero en profundidad. Sin límite por defecto.
-
-    Termina igual sin límite, porque el espacio de estados es finito y llevamos
-    el conjunto de visitados. El costo que devuelve va a ser malísimo, y eso es
-    exactamente lo que queremos mostrar: encuentra UNA solución, no la mejor.
-    """
+    """Primero en profundidad. Sin límite por defecto."""
     return buscar(problema, FronteraLIFO(), politica=CERRADO,
                   limite_profundidad=limite_profundidad,
                   max_nodos=max_nodos, timeout_s=timeout_s,
@@ -50,12 +24,7 @@ def dfs(problema, limite_profundidad=None, max_nodos=None, timeout_s=None,
 
 def greedy(problema, heuristica, nombre_heuristica='', max_nodos=None,
            timeout_s=None, nivel='') -> Resultado:
-    """Ávido: prioriza sólo por h, ignora lo que ya costó llegar.
-
-    Política 'cerrado' y no 'mejor_g' a propósito: no garantiza optimalidad de
-    ninguna manera, así que reabrir estados por un g mejor sólo agregaría
-    trabajo sin comprar nada.
-    """
+    """Ávido: prioriza sólo por h, ignora lo que ya costó llegar."""
     return buscar(problema, FronteraPrioridad(peso_g=0, peso_h=1),
                   politica=CERRADO, heuristica=heuristica,
                   max_nodos=max_nodos, timeout_s=timeout_s,
@@ -73,15 +42,7 @@ def a_estrella(problema, heuristica, nombre_heuristica='', max_nodos=None,
 
 def hpa(problema, heuristica, w=0.5, nombre_heuristica='', max_nodos=None,
         timeout_s=None, nivel='') -> Resultado:
-    """Heuristic Path Algorithm: f = (1-w)·g + w·h.
-
-    Recorre el espectro completo con un solo número: w=0 es costo uniforme,
-    w=0.5 es A* reescalado y w=1 es Greedy. Es el barrido de la Fase 8.
-
-    La política acompaña al extremo: con w=1 el término g desaparece y el
-    método es Greedy, así que se usa 'cerrado' por el mismo motivo que allá.
-    Para cualquier otro w hay componente de costo y corresponde 'mejor_g'.
-    """
+    """Heuristic Path Algorithm: f = (1-w)·g + w·h."""
     return buscar(problema, FronteraPrioridad(peso_g=1 - w, peso_h=w),
                   politica=CERRADO if w >= 1 else MEJOR_G,
                   heuristica=heuristica,
@@ -91,28 +52,7 @@ def hpa(problema, heuristica, w=0.5, nombre_heuristica='', max_nodos=None,
 
 def iddfs(problema, limite_inicial=0, max_nodos=None, timeout_s=None,
           nivel='', politica=MEJOR_G, metodo='IDDFS') -> Resultado:
-    """Profundización iterativa: DFS con límite creciente.
-
-    Es óptimo con costo uniforme por la misma razón que BFS: la primera solución
-    que aparece está a la mínima profundidad posible.
-
-    OJO CON LA MEMORIA, que es el resultado interesante de la fase. El IDDFS de
-    manual tiene memoria lineal en la profundidad porque NO guarda visitados.
-    Éste sí los guarda —política 'mejor_g'— porque sin eso, en Sokoban, las
-    transposiciones lo hacen inviable. Y al guardarlos, la ventaja de memoria se
-    evapora: la frontera queda diminuta pero el diccionario crece hasta el orden
-    del de BFS. Comparar frontera contra frontera diría que ahorra 55 veces;
-    comparar memoria total dice que ahorra un 13 %. Por eso `Resultado` reporta
-    `memoria_maxima`. La versión sin visitados es `iddfs_puro`.
-
-    Las métricas se ACUMULAN entre iteraciones: los nodos expandidos son la suma
-    de todas las pasadas, porque ese trabajo se hizo de verdad. Pero
-    `frontera_maxima` y `memoria_maxima` son el MÁXIMO y no la suma, porque las
-    pasadas no coexisten en memoria.
-
-    Se espera que agote el límite de nodos en N4 y N5. No es un fallo de la
-    implementación: es un resultado del TP y va reportado como tal.
-    """
+    """Profundización iterativa: DFS con límite creciente."""
     comienzo = time.perf_counter()
     expandidos = generados = 0
     frontera_maxima = 0
@@ -139,8 +79,6 @@ def iddfs(problema, limite_inicial=0, max_nodos=None, timeout_s=None,
                                       estados_visitados, iteraciones,
                                       comienzo, nivel, metodo)
 
-        # Cada iteración arranca con estructuras vacías: es lo que hace que la
-        # memoria de IDDFS sea la de una sola pasada y no la de todas juntas.
         parcial = buscar(problema, FronteraLIFO(), politica=politica,
                          limite_profundidad=limite,
                          max_nodos=restante_nodos, timeout_s=restante_s,
@@ -170,8 +108,6 @@ def iddfs(problema, limite_inicial=0, max_nodos=None, timeout_s=None,
                                   comienzo, nivel, metodo,
                                   frontera_final=parcial.frontera_final)
 
-        # Ningún nodo tocó el límite: el espacio quedó agotado y subir el límite
-        # volvería a recorrer exactamente lo mismo. No hay solución, punto.
         if parcial.podados_por_limite == 0:
             return _fracaso_iddfs('sin_solucion', expandidos, generados,
                                   frontera_maxima, memoria_maxima,
@@ -199,28 +135,14 @@ def _fracaso_iddfs(motivo, expandidos, generados, frontera_maxima,
 
 def iddfs_puro(problema, limite_inicial=0, max_nodos=None, timeout_s=None,
                nivel='') -> Resultado:
-    """El IDDFS de manual: sin estructura de visitados.
-
-    Sólo evita repetir estados que ya están en el camino actual. Ésa es la
-    versión que tiene memoria lineal en la profundidad, y la que justifica la
-    frase "IDDFS usa mucha menos memoria" de los libros.
-
-    En Sokoban no sirve, y ese es el punto: sin tabla de transposiciones, cada
-    estado alcanzable por k caminos distintos se expande k veces, y como el
-    jugador puede pasear sin empujar nada, k es enorme. Termina en N1 y no
-    termina en ningún otro nivel de la suite. Existe para poder MEDIR el
-    intercambio entre memoria y trabajo repetido, no para usarlo.
-    """
+    """El IDDFS de manual: sin estructura de visitados."""
     return iddfs(problema, limite_inicial=limite_inicial, max_nodos=max_nodos,
                  timeout_s=timeout_s, nivel=nivel, politica=CAMINO,
                  metodo='IDDFS puro')
 
 
-#: Nombres que acepta `config.json`. El runner de la Fase 6 va a usar este mismo
-#: registro, así que agregar un método es agregar una línea acá.
 METODOS = ('bfs', 'dfs', 'iddfs', 'iddfs_puro', 'greedy', 'astar', 'hpa')
 
-#: Qué métodos necesitan una heurística para poder correr.
 METODOS_INFORMADOS = ('greedy', 'astar', 'hpa')
 
 

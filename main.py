@@ -1,26 +1,8 @@
-"""Punto de entrada: resuelve UN nivel con UN método, según un archivo de configuración.
+"""Resuelve un nivel con un método, según un archivo de configuración.
 
-    python main.py                          usa config.json
-    python main.py mi_config.json           usa otro archivo
-    python main.py --metodo bfs             pisa una clave puntual
-
-QUÉ DECISIÓN ENCIERRA
-    El enunciado pide configuración POR ARCHIVO, no hardcodeada. Los flags de
-    línea de comandos existen igual, pero son para probar rápido mientras se
-    trabaja: los experimentos que van a la presentación se corren siempre desde
-    un archivo, porque un archivo se commitea y un comando tipeado a mano no.
-    Si un número de la presentación no se puede reproducir con un archivo de
-    configuración del repositorio, ese número no debería estar en la
-    presentación.
-
-QUÉ SE DESCARTÓ
-    Aceptar claves desconocidas en el JSON ignorándolas en silencio. Un
-    `"heuristica": "h2"` mal tipeado, o una clave que quedó de otra prueba,
-    daría una corrida perfectamente exitosa que no es la que se pidió. Acá
-    aborta y dice cuál es la clave que sobra.
-
-La matriz completa de experimentos —todos los niveles por todos los métodos,
-con repeticiones y CSV— es la Fase 6. Esto resuelve una configuración por vez.
+    python main.py                     usa config.json
+    python main.py mi_config.json      usa otro archivo
+    python main.py --metodo bfs        pisa una clave puntual
 """
 
 import argparse
@@ -70,12 +52,8 @@ VALORES_POR_DEFECTO = {
     'nivel': 'niveles/n1_micro.sok',
     'metodo': 'bfs',
     'heuristica': 'h1',
-    # Sin poda por defecto: es la corrida de las Fases 2 a 4, y una configuración
-    # ya escrita tiene que seguir significando lo mismo que significaba.
     'deadlocks': 'ninguno',
     'timeout_s': 300,
-    # El mismo número que config.json: el límite de nodos es el corte
-    # determinístico de todas las corridas del proyecto.
     'max_nodos': 3_000_000,
     'limite_profundidad': None,
     'w': 0.5,
@@ -165,8 +143,6 @@ def imprimir_resultado(resultado, problema, config):
     print(f'Nodos en la frontera:   {_n(resultado.frontera_final)} al terminar   '
           f'({_n(resultado.frontera_maxima)} como máximo)')
     print(f'Estados visitados:      {_n(resultado.estados_visitados)}')
-    # La memoria del método es frontera + visitados. La frontera sola engaña:
-    # ver el resumen de la Fase 2 sobre IDDFS.
     print(f'Memoria máxima:         {_n(resultado.memoria_maxima)} nodos '
           f'(frontera + visitados)')
     print(f'Tiempo de procesamiento: {resultado.tiempo_s:.3f} s')
@@ -191,8 +167,6 @@ def main(argv=None) -> int:
         print(f'Error de configuración: {e}', file=sys.stderr)
         return 2
 
-    # Los flags pisan al archivo, no al revés: el archivo es la configuración
-    # reproducible y el flag es el experimento de prueba de este momento.
     for clave in ('nivel', 'metodo', 'heuristica', 'deadlocks', 'timeout_s',
                   'max_nodos', 'limite_profundidad', 'w'):
         valor = getattr(argumentos, clave, None)

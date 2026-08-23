@@ -1,22 +1,4 @@
-"""Ejecutor automatizado de la matriz de experimentos de Sokoban (Fase 6).
-
-QUÉ REPRESENTA
-    El runner lee un archivo de configuración JSON que define una matriz de
-    experimentos (niveles x métodos x heurísticas x capas de poda x repeticiones)
-    y ejecuta secuencialmente cada corrida guardando los resultados crudos en un
-    archivo CSV.
-
-LA DECISIÓN DE DISEÑO — escritura incremental y determinismo
-    Las corridas pueden durar minutos u horas. Los resultados se escriben al CSV
-    después de cada corrida individual para no perder progreso ante eventuales
-    interrupciones. Las métricas de tiempo se pueden repetir N veces por tupla,
-    mientras que las variaciones de DFS sobre el orden de sucesores (las 24
-    permutaciones) permiten medir la variabilidad intrínseca del método.
-
-QUÉ SE DESCARTÓ
-    Agregaciones estadísticas dentro del runner (medias, desvíos, etc.). El runner
-    produce datos crudos (raw) y la agregación o graficado se delega a la Fase 8.
-"""
+"""Ejecutor automatizado de la matriz de experimentos de Sokoban (Fase 6)."""
 
 import argparse
 import json
@@ -25,7 +7,6 @@ import time
 from itertools import permutations
 from pathlib import Path
 
-# Raíz del proyecto: dos niveles arriba de este archivo
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
@@ -82,7 +63,6 @@ def cargar_config_runner(ruta_config: Path) -> dict:
     with open(ruta_config, "r", encoding="utf-8") as f:
         config = json.load(f)
 
-    # Filtrar comentarios si existen (ej. _comentarios)
     config_limpia = {k: v for k, v in config.items() if not k.startswith("_")}
 
     claves_desconocidas = set(config_limpia.keys()) - CAMPOS_CONFIG_GLOBAL
@@ -91,7 +71,6 @@ def cargar_config_runner(ruta_config: Path) -> dict:
             f"Claves desconocidas en el archivo de configuración global: {sorted(claves_desconocidas)}"
         )
 
-    # Valores por defecto globales
     runs_global = config_limpia.get("runs", 5)
     separador_decimal = config_limpia.get("separador_decimal", ".")
     encoding = config_limpia.get("encoding", "utf-8")
@@ -182,7 +161,6 @@ def generar_tuplas_ejecucion(config: dict) -> list[tuple]:
         runs = bloque.get("runs", runs_global)
 
         if todas_las_dir:
-            # Generar las 24 permutaciones de DIRECCIONES
             perms = list(permutations(DIRECCIONES))
             for niv in niveles:
                 for d_capa in deadlocks:
@@ -244,7 +222,6 @@ def ejecutar_matriz(
     encoding = config_runner["encoding"]
     intervalo_progreso = config_runner["intervalo_progreso_s"]
 
-    # Crear directorios padres si no existen
     ruta_salida_csv.parent.mkdir(parents=True, exist_ok=True)
 
     inicio_global = time.perf_counter()
@@ -269,7 +246,6 @@ def ejecutar_matriz(
                 )
                 ultimo_reporte = ahora
 
-            # Cargar problema
             tablero, inicial = leer_archivo(RAIZ / "niveles" / f"{niv}.sok")
             detector = construir_detector(d_capa, tablero)
             problema = Problema(
@@ -279,10 +255,8 @@ def ejecutar_matriz(
                 orden_direcciones=perm,
             )
 
-            # Heurística
             h_func = construir_heuristica(h_nombre, problema) if h_nombre else None
 
-            # Resolver
             resultado = resolver(
                 problema,
                 metodo,
@@ -293,7 +267,6 @@ def ejecutar_matriz(
                 nivel=niv,
             )
 
-            # Formatear fila CSV
             costo_str = (
                 str(resultado.costo)
                 if resultado.exito and resultado.costo is not None
