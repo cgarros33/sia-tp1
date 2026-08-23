@@ -20,7 +20,21 @@ QUÉ SE DESCARTÓ
     obligaría a tener un `Problema` distinto por heurística, y entonces
     comparar dos heurísticas dejaría de ser comparar dos funciones sobre el
     mismo problema. Acá el problema es uno solo y la heurística se enchufa.
+
+DÓNDE VIVE CADA UNA
+    h0 y h1 están escritas acá abajo porque son de dos líneas y no precalculan
+    nada. De h₂ en adelante cada una tiene su propio archivo: no por tamaño de
+    código sino porque cada una necesita su demostración de admisibilidad
+    escrita, y esa demostración es el docstring del módulo. Este archivo queda
+    como lo que es, el índice: el mapa de nombre a fábrica que leen `config.json`
+    y el runner de la Fase 6.
 """
+
+from .h2_manhattan import h2
+from .h3_matching_manhattan import h3
+from .h4_matching_real import h4
+from .h5_con_jugador import h5
+from .hna_sobreestimada import hna, hna4
 
 
 def h0(problema):
@@ -73,10 +87,21 @@ def h1(problema):
 
 
 #: Nombre -> fábrica. `config.json` y el runner de la Fase 6 usan estos nombres.
-#: La escalera h₂...h₅ de la Fase 4 se agrega acá sin tocar nada más.
+#: El orden es el de la escalera de la Fase 4, y no es decorativo: es el orden en
+#: que se cuenta la narrativa, y cada entrada nueva existe porque arregla un
+#: defecto MEDIDO de la anterior.
 HEURISTICAS = {
     'h0': h0,
     'h1': h1,
+    'h2': h2,
+    'h3': h3,
+    'h4': h4,
+    'h5': h5,
+    # Las dos NO admisibles, a propósito. Van al final y no en el medio: no son
+    # un eslabón de la escalera, son el experimento de control que muestra qué
+    # se rompe cuando se pierde la admisibilidad.
+    'hna': hna,
+    'hna4': hna4,
 }
 
 

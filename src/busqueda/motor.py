@@ -93,6 +93,27 @@ class Resultado:
     # mantiene un diccionario de visitados del mismo orden que el de BFS, así
     # que comparar frontera contra frontera diría que ahorra 55 veces cuando en
     # realidad no ahorra nada. Ver el resumen de la fase.
+    #
+    # OJO: NO ES `frontera_maxima + estados_visitados`. Es EL PICO DE LA SUMA, no
+    # la suma de los picos, y las dos cosas difieren porque los picos no caen en
+    # el mismo instante. En n2_akk04 la frontera alcanza su máximo de 2.691 en la
+    # expansión 40.180 de 44.124, cuando visitados todavía va por 42.871; para
+    # cuando la suma llega a su máximo, en la última expansión, la frontera ya
+    # bajó a 2.655. De ahí que 2.691 + 46.779 = 49.470 y esto valga 49.434.
+    #
+    # Hay una asimetría más que conviene tener presente al leer la tabla:
+    # `estados_visitados` ni siquiera es un pico, es el valor FINAL de la
+    # estructura, medido después del bucle. Con política 'cerrado' esa estructura
+    # sólo crece, así que final = máximo, pero se está comparando un pico de
+    # mitad de corrida con un valor de cierre.
+    #
+    # En n1_micro la suma da exacto (12 + 50 = 62) por tamaño y no por una
+    # propiedad: en un pasillo de 12 celdas la frontera llega a su máximo en la
+    # expansión 27 y se queda ahí hasta la última, la 38, que es justo cuando
+    # visitados llega a su valor final.
+    #
+    # Con política 'camino' no hay estructura de visitados: esto degenera al pico
+    # de la frontera sola y `estados_visitados` vale 0.
     memoria_maxima: int
     nodos_generados: int
     estados_visitados: int
