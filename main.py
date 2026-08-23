@@ -29,6 +29,7 @@ import sys
 from pathlib import Path
 
 from src.busqueda import METODOS, METODOS_INFORMADOS, resolver
+from src.deadlocks import DETECTORES, construir as construir_detector
 from src.heuristicas import HEURISTICAS, construir
 from src.modelo import NivelInvalido, Problema, leer_archivo
 from src.modelo.tablero import NOMBRE_DIR
@@ -37,7 +38,7 @@ RAIZ = Path(__file__).resolve().parent
 CONFIG_POR_DEFECTO = RAIZ / 'config.json'
 
 CLAVES = {
-    'nivel', 'metodo', 'heuristica', 'timeout_s', 'max_nodos',
+    'nivel', 'metodo', 'heuristica', 'deadlocks', 'timeout_s', 'max_nodos',
     'limite_profundidad', 'w', 'mostrar_solucion',
 }
 
@@ -45,6 +46,9 @@ VALORES_POR_DEFECTO = {
     'nivel': 'niveles/n1_micro.sok',
     'metodo': 'bfs',
     'heuristica': 'h1',
+    # Sin poda por defecto: es la corrida de las Fases 2 a 4, y una configuración
+    # ya escrita tiene que seguir significando lo mismo que significaba.
+    'deadlocks': 'ninguno',
     'timeout_s': 300,
     # El mismo número que config.json: el límite de nodos es el corte
     # determinístico de todas las corridas del proyecto.
@@ -89,6 +93,7 @@ def _parsear_argumentos(argv):
     parser.add_argument('--nivel', help='ruta al .sok')
     parser.add_argument('--metodo', choices=METODOS)
     parser.add_argument('--heuristica', choices=sorted(HEURISTICAS))
+    parser.add_argument('--deadlocks', choices=sorted(DETECTORES))
     parser.add_argument('--timeout', type=float, dest='timeout_s')
     parser.add_argument('--max-nodos', type=int, dest='max_nodos')
     parser.add_argument('--limite-profundidad', type=int, dest='limite_profundidad')
@@ -115,6 +120,7 @@ def imprimir_resultado(resultado, problema, config):
     if config['metodo'] == 'hpa':
         linea_metodo += f'   w = {config["w"]}'
     print(linea_metodo)
+    print(f'Poda:        {config["deadlocks"]}')
     print('-' * 64)
 
     if resultado.exito:
@@ -163,8 +169,8 @@ def main(argv=None) -> int:
 
     # Los flags pisan al archivo, no al revés: el archivo es la configuración
     # reproducible y el flag es el experimento de prueba de este momento.
-    for clave in ('nivel', 'metodo', 'heuristica', 'timeout_s', 'max_nodos',
-                  'limite_profundidad', 'w'):
+    for clave in ('nivel', 'metodo', 'heuristica', 'deadlocks', 'timeout_s',
+                  'max_nodos', 'limite_profundidad', 'w'):
         valor = getattr(argumentos, clave, None)
         if valor is not None:
             config[clave] = valor
@@ -177,7 +183,13 @@ def main(argv=None) -> int:
         print(f'Error leyendo el nivel: {e}', file=sys.stderr)
         return 2
 
-    problema = Problema(tablero, inicial)
+    try:
+        detector = construir_detector(config['deadlocks'], tablero)
+    except ValueError as e:
+        print(f'Error de configuración: {e}', file=sys.stderr)
+        return 2
+
+    problema = Problema(tablero, inicial, detector_deadlocks=detector)
     heuristica = None
     if config['metodo'] in METODOS_INFORMADOS:
         try:
