@@ -114,6 +114,12 @@ Autorizadas en `src/`: sólo la biblioteca estándar de Python, más `numpy` y
 `scipy` (esta última exclusivamente para `linear_sum_assignment`, el matching
 húngaro de la Fase 4).
 
+Autorizada en `src/viz/` y **sólo ahí**: `Pillow`, exclusivamente para escribir
+imágenes y GIF (el reproductor de la Fase 7). Ese paquete es entrada/salida y no
+participa de la búsqueda: nada de `src/modelo/` ni de `src/busqueda/` lo importa.
+La regla existe para que la búsqueda sea nuestra, y dibujar un tablero no compite
+con eso.
+
 Autorizadas en `experimentos/` y `tests/`: además `matplotlib`, `pandas` y
 `pytest`.
 
