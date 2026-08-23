@@ -1,6 +1,6 @@
 # FASE 5 — Deadlocks
 
-**Dueño:** Celestino · **Estado:** terminada
+**Dueño:** Leo · **Estado:** terminada
 
 Podar los estados que ya no admiten solución. Al terminar, la búsqueda descarta
 esos estados antes de crearlos, el costo de las soluciones no cambia en ningún
