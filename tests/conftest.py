@@ -87,7 +87,9 @@ ESPERADO = {
             'estados_visitados': 50,
             'memoria_maxima': 62,
         },
-        'informatividad': {'h0': 0.0, 'h1': 1 / 8},
+        'informatividad': {
+            'h0': 0.0, 'h1': 1 / 8, 'h2': 5 / 8, 'h3': 5 / 8, 'h4': 5 / 8, 'h5': 6 / 8,
+        },
         # N1 es la excepción documentada del test estricto de DFS: es un pasillo
         # de 12 celdas sin ramificación real, así que DFS cae en el óptimo sin
         # buscarlo. Corriendo DFS con los 24 órdenes posibles de DIRECCIONES, da
@@ -106,7 +108,9 @@ ESPERADO = {
             'estados_visitados': 46_779,
             'memoria_maxima': 49_434,
         },
-        'informatividad': {'h0': 0.0, 'h1': 4 / 45},
+        'informatividad': {
+            'h0': 0.0, 'h1': 4 / 45, 'h2': 11 / 45, 'h3': 14 / 45, 'h4': 18 / 45, 'h5': 18 / 45,
+        },
         'dfs_estrictamente_peor': True,
     },
     'n3_caminata': {
@@ -121,7 +125,9 @@ ESPERADO = {
             'estados_visitados': 6_491,
             'memoria_maxima': 6_622,
         },
-        'informatividad': {'h0': 0.0, 'h1': 2 / 104},
+        'informatividad': {
+            'h0': 0.0, 'h1': 2 / 104, 'h2': 12 / 104, 'h3': 12 / 104, 'h4': 12 / 104, 'h5': 13 / 104,
+        },
         'dfs_estrictamente_peor': True,
     },
     'n4_matching': {
@@ -136,7 +142,9 @@ ESPERADO = {
             'estados_visitados': 662_769,
             'memoria_maxima': 671_278,
         },
-        'informatividad': {'h0': 0.0, 'h1': 4 / 70},
+        'informatividad': {
+            'h0': 0.0, 'h1': 4 / 70, 'h2': 16 / 70, 'h3': 20 / 70, 'h4': 22 / 70, 'h5': 24 / 70,
+        },
         'dfs_estrictamente_peor': True,
     },
     'n5_limite': {
@@ -151,7 +159,9 @@ ESPERADO = {
             'estados_visitados': 2_028_469,
             'memoria_maxima': 2_028_699,
         },
-        'informatividad': {'h0': 0.0, 'h1': 4 / 306},
+        'informatividad': {
+            'h0': 0.0, 'h1': 4 / 306, 'h2': 23 / 306, 'h3': 27 / 306, 'h4': 63 / 306, 'h5': 70 / 306,
+        },
         # No está en la lista del test estricto porque N5 no se corre ahí: DFS
         # en N5 da 6.992 contra un óptimo de 306, o sea 22x, pero verificarlo
         # cuesta 6 segundos y no agrega nada a lo que ya muestran N2, N3 y N4.
@@ -165,17 +175,22 @@ COLUMNAS_BFS = ('nodos_expandidos', 'nodos_generados', 'frontera_maxima',
                 'estados_visitados', 'memoria_maxima')
 
 #: Las heurísticas ADMISIBLES. Son las que se someten a los tests de
-#: admisibilidad, consistencia e informatividad. LA FASE 4 AGREGA h2...h5 ACÁ y
-#: una fila en la clave `informatividad` de cada nivel, y no escribe ningún test
-#: nuevo.
-HEURISTICAS_A_VERIFICAR = ('h0', 'h1')
+#: admisibilidad, consistencia e informatividad. La Fase 4 va agregando acá cada
+#: eslabón de la escalera, junto con una fila en la clave `informatividad` de
+#: cada nivel, y no escribe ningún test nuevo.
+HEURISTICAS_A_VERIFICAR = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
 
 #: Las heurísticas que se sabe que NO son admisibles y están en el registro a
-#: propósito, para mostrar qué se rompe. Hoy está vacía; la Fase 4 va a poner acá
-#: la hna = 2*h4. Existe para que el guardián de `test_heuristicas.py` distinga
-#: "no admisible a propósito" de "nadie la verificó", que es exactamente la
-#: diferencia entre una decisión y un olvido.
-HEURISTICAS_NO_ADMISIBLES = ()
+#: propósito, para mostrar qué se rompe. Existe para que el guardián de
+#: `test_heuristicas.py` distinga "no admisible a propósito" de "nadie la
+#: verificó", que es exactamente la diferencia entre una decisión y un olvido.
+#:
+#: Son dos y no una porque dan resultados distintos: hna = 2*h4 devuelve el
+#: óptimo en los cinco niveles a pesar de no ser admisible, y hna4 = 4*h4 devuelve
+#: soluciones subóptimas en n2_akk04 (47 contra 45) y n4_matching (82 contra 70).
+#: La primera muestra que se pierde la GARANTÍA, la segunda muestra qué pasa
+#: cuando esa garantía hacía falta. Ver src/heuristicas/hna_sobreestimada.py.
+HEURISTICAS_NO_ADMISIBLES = ('hna', 'hna4')
 
 
 def parametros_niveles(niveles=NIVELES_SUITE):

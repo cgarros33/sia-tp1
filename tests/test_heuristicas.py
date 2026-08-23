@@ -99,7 +99,11 @@ def test_informatividad_no_baja(problema, camino, nivel, nombre_h):
     assert medida >= ESPERADO[nivel]['informatividad'][nombre_h] - 1e-9
 
 
-@pytest.mark.parametrize('nombre_h', HEURISTICAS_A_VERIFICAR)
+# El ancla es SÓLO de h0 y h1, así que se parametriza sobre esos dos nombres y no
+# sobre HEURISTICAS_A_VERIFICAR: de h₂ en adelante el valor en el inicial ya no es
+# la cantidad de cajas sino una suma de distancias, y el numerador de esas
+# fracciones se audita nivel por nivel en la tabla de la Fase 4.
+@pytest.mark.parametrize('nombre_h', ('h0', 'h1'))
 @pytest.mark.parametrize('nivel', parametros_niveles())
 def test_h0_no_informa_y_h1_si(problema, camino, nivel, nombre_h):
     """h0 vale 0 en el inicial por definición; h1 vale la cantidad de cajas.
