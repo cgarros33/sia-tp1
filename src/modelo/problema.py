@@ -38,9 +38,9 @@ class Problema:
     compartan el mismo modelo y que la comparación entre ellos sea justa.
     """
 
-    __slots__ = ('tablero', 'inicial', 'detector_deadlocks')
+    __slots__ = ('tablero', 'inicial', 'detector_deadlocks', 'orden_direcciones')
 
-    def __init__(self, tablero, inicial: Estado, detector_deadlocks=None):
+    def __init__(self, tablero, inicial: Estado, detector_deadlocks=None, orden_direcciones=None):
         self.tablero = tablero
         self.inicial = inicial
         # Gancho para la Fase 5. Firma:
@@ -57,6 +57,10 @@ class Problema:
         # no empuja nada no puede crear un deadlock, las cajas quedaron donde
         # estaban.
         self.detector_deadlocks = detector_deadlocks
+        # El orden en que sucesores() genera las acciones. DIRECCIONES por defecto.
+        # DFS depende de este orden: cambiarlo cambia qué solución encuentra. Con
+        # las 24 permutaciones posibles se mide la variabilidad real de DFS.
+        self.orden_direcciones = orden_direcciones if orden_direcciones is not None else DIRECCIONES
 
     def es_meta(self, estado: Estado) -> bool:
         """True si todas las cajas están sobre metas.
@@ -85,7 +89,7 @@ class Problema:
         detectar = self.detector_deadlocks if podar_deadlocks else None
         movimientos_del_jugador = mover[estado.jugador]
 
-        for d in DIRECCIONES:
+        for d in self.orden_direcciones:
             destino = movimientos_del_jugador[d]
             if destino == -1:
                 continue  # pared o borde del tablero
