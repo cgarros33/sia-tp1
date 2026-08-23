@@ -1,6 +1,6 @@
 # FASE 5 — Deadlocks
 
-**Dueño:** Celestino · **Estado:** pendiente
+**Dueño:** Celestino · **Estado:** terminada
 
 Podar los estados que ya no admiten solución. Al terminar, la búsqueda descarta
 esos estados antes de crearlos, el costo de las soluciones no cambia en ningún
@@ -71,7 +71,7 @@ estaba mal pensado: **decilo antes de tocar** (regla 9).
 
 ## El diseño: tres detectores, no uno
 
-Un detector es una **fábrica**, igual que una heurística: recibe el problema y
+Un detector es una **fábrica**, igual que una heurística: recibe el nivel y
 devuelve una función. La firma de la función es la que fijó la Fase 1:
 
 ```python
@@ -79,6 +79,12 @@ detector(cajas: frozenset[int], caja_movida: int) -> bool
 ```
 
 `True` significa "esta configuración de cajas ya no admite solución".
+
+La fábrica recibe el **`Tablero`** y no el `Problema`, que es la única diferencia
+con las heurísticas. Por dos motivos: un deadlock es geometría del nivel y no
+depende del estado inicial, y sobre todo porque el `Problema` se construye **con**
+el detector adentro, así que pedirle el problema a la fábrica sería un
+huevo-y-gallina.
 
 ```python
 DETECTORES = {
@@ -319,7 +325,7 @@ Salida esperada, por nivel:
 
 ```
 === n4_matching.sok  (óptimo publicado: 70 mov / 22 empujes) ===
-  celdas muertas: 12 de 31 transitables    cuadrados vivos: xx
+  celdas muertas: 12 de 31 transitables   ·   rincones: 6, de los cuales 0 no son celda muerta
   el camino óptimo (71 estados, 22 empujes) sobrevive a las tres capas   OK
   método    poda          costo  expandidos    generados    memoria  vs sin poda
   BFS       ninguno          70     654.260    1.728.078    671.278       1,00x
@@ -333,7 +339,14 @@ Salida esperada, por nivel:
 ```
 
 y al final las dos tablas resumen: cuánto ahorra cada capa por método y nivel, y
-cuántas celdas muertas y cuántos cuadrados vivos tiene cada nivel.
+cuál de las dos reglas poda más en cada uno.
+
+Un **rincón** es una celda para la que la regla de 2x2 tiene un cuadrado sin
+requisitos, o sea que la declara deadlock con una sola caja. Se reporta al lado
+de las celdas muertas porque la comparación entre los dos números es la medida de
+cuánto se solapan las dos reglas cuando hay una sola caja en juego. Contar
+cuántos cuadrados quedan vivos, en cambio, no informa nada: da prácticamente el
+total de celdas transitables en los cinco niveles.
 
 **Tarda más que la verificación de la Fase 4**: son 60 corridas y cuatro de ellas
 rondan los dos millones de nodos. Que vaya imprimiendo nivel por nivel.
