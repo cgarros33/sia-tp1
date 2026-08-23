@@ -1,0 +1,5 @@
+numpy         # matriz de costos del matching húngaro (Fase 4)
+scipy         # linear_sum_assignment, el matching húngaro (Fase 4)
+Pillow        # dibujar tableros y GIFs (Fase 7)
+matplotlib    # las cuatro figuras de análisis (Fase 8)
+pytest        # la suite de tests (Fase 3)

@@ -25,8 +25,33 @@ con repeticiones y CSV— es la Fase 6. Esto resuelve una configuración por vez
 
 import argparse
 import json
+import subprocess
 import sys
 from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parent
+
+
+def _asegurar_dependencias():
+    try:
+        import numpy  # noqa: F401
+        import scipy  # noqa: F401
+    except ImportError:
+        requisitos = RAIZ / 'requirements.txt'
+        print(f'Faltan dependencias. Instalando desde {requisitos.name}...',
+              file=sys.stderr)
+        try:
+            subprocess.run(
+                [sys.executable, '-m', 'pip', 'install', '-r', str(requisitos)],
+                check=True)
+        except (subprocess.CalledProcessError, OSError) as e:
+            print(f'No se pudo instalar automáticamente ({e}).\n'
+                  f'Instalá a mano con: pip install -r {requisitos}',
+                  file=sys.stderr)
+            sys.exit(1)
+
+
+_asegurar_dependencias()
 
 from src.busqueda import METODOS, METODOS_INFORMADOS, resolver
 from src.deadlocks import DETECTORES, construir as construir_detector
@@ -34,7 +59,6 @@ from src.heuristicas import HEURISTICAS, construir
 from src.modelo import NivelInvalido, Problema, leer_archivo
 from src.modelo.tablero import NOMBRE_DIR
 
-RAIZ = Path(__file__).resolve().parent
 CONFIG_POR_DEFECTO = RAIZ / 'config.json'
 
 CLAVES = {
