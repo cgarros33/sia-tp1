@@ -1,0 +1,36 @@
+{
+  "runs": 5,
+  "separador_decimal": ".",
+  "encoding": "utf-8",
+  "intervalo_progreso_s": 15,
+  "matriz": [
+    {
+      "metodo": "bfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["ninguno", "estaticos", "congelados", "completo"]
+    },
+    {
+      "metodo": "dfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"],
+      "todas_las_direcciones": true
+    },
+    {
+      "metodo": "iddfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    },
+    {
+      "metodo": "greedy",
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    },
+    {
+      "metodo": "astar",
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    }
+  ]
+}

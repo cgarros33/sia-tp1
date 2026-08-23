@@ -32,7 +32,7 @@ exactamente el escenario que hay que evitar.
 | 3 — Tests de regresión | `FASE_3_RESUMEN.md` | pendiente |
 | 4 — Heurísticas | `FASE_4_RESUMEN.md` | escrito |
 | 5 — Deadlocks | `FASE_5_RESUMEN.md` | escrito |
-| 6 — Runner y experimentos | `FASE_6_RESUMEN.md` | pendiente |
+| 6 — Runner y experimentos | `FASE_6_RESUMEN.md` | escrito |
 | 7 — Reproductor | `FASE_7_RESUMEN.md` | pendiente |
 | 8 — Gráficos y análisis | `FASE_8_RESUMEN.md` | pendiente |
 

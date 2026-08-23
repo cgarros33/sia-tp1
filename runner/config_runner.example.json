@@ -1,0 +1,51 @@
+{
+  "_comentarios": {
+    "runs": "Cantidad predeterminada de repeticiones por cada tupla (nivel, metodo, heuristica, poda) para medir tiempos con media y desvío.",
+    "separador_decimal": "Punto ('.') o coma (',') para formatear los números flotantes en el CSV de salida.",
+    "encoding": "Codificación del archivo CSV generado (ej. 'utf-8').",
+    "intervalo_progreso_s": "Frecuencia en segundos para imprimir el estado de avance de la ejecución por stderr.",
+    "matriz": "Lista de bloques de experimentos. Permite especificar combinaciones detalladas por método.",
+    "matriz_campos": {
+      "metodo": "Obligatorio. Uno de: 'bfs', 'dfs', 'iddfs', 'iddfs_puro', 'greedy', 'astar', 'hpa'.",
+      "niveles": "Obligatorio. Lista de nombres de archivos de nivel en la carpeta niveles/ (sin extension .sok).",
+      "heuristicas": "Opcional para informados (ej. ['h0', 'h1', 'h2']). Si se incluye en no informados da un warning y se ignora.",
+      "deadlocks": "Opcional. Lista de capas de poda: ['ninguno', 'estaticos', 'congelados', 'completo']. Default: ['completo'].",
+      "runs": "Opcional. Sobrescribe el valor de 'runs' global para esta entrada específica.",
+      "todas_las_direcciones": "Opcional (sólo para DFS). Si es true, ignora 'runs' y ejecuta DFS con las 24 permutaciones de direcciones de sucesores (4! = 24)."
+    }
+  },
+  "runs": 5,
+  "separador_decimal": ".",
+  "encoding": "utf-8",
+  "intervalo_progreso_s": 15,
+  "matriz": [
+    {
+      "metodo": "bfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["ninguno", "estaticos", "congelados", "completo"]
+    },
+    {
+      "metodo": "dfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"],
+      "todas_las_direcciones": true
+    },
+    {
+      "metodo": "iddfs",
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    },
+    {
+      "metodo": "greedy",
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    },
+    {
+      "metodo": "astar",
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
+      "deadlocks": ["completo"]
+    }
+  ]
+}
