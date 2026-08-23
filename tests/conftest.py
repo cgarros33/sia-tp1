@@ -46,6 +46,7 @@ import pytest
 
 from main import RAIZ, cargar_config
 from src.busqueda import a_estrella, bfs, dfs, greedy, iddfs
+from src.deadlocks import construir as construir_detector
 from src.heuristicas import construir
 from src.modelo import Problema, leer_archivo
 
@@ -74,6 +75,11 @@ NIVELES_LENTOS = ('n4_matching', 'n5_limite')
 # numerador es el valor de la heurística en el estado inicial —para h1, cuántas
 # cajas arrancan fuera de meta— y el denominador es el óptimo publicado. Así el
 # número es auditable de un vistazo en vez de ser un decimal caído del cielo.
+#
+# `deadlocks` es lo que midió la Fase 5. `expandidos_por_capa` no incluye las dos
+# corridas que ya están en otro lado —'ninguno' es la clave `bfs` y 'completo' es
+# `bfs_completo`—, para que ningún número esté escrito dos veces: si estuviera,
+# alguien actualizaría uno y no el otro.
 ESPERADO = {
     'n1_micro': {
         'lid': 37953,
@@ -89,6 +95,17 @@ ESPERADO = {
         },
         'informatividad': {
             'h0': 0.0, 'h1': 1 / 8, 'h2': 5 / 8, 'h3': 5 / 8, 'h4': 5 / 8, 'h5': 6 / 8,
+        },
+        'deadlocks': {
+            'celdas_muertas': 5,
+            'expandidos_por_capa': {'estaticos': 35, 'congelados': 35},
+            'bfs_completo': {
+                'nodos_expandidos': 35,
+                'nodos_generados': 85,
+                'frontera_maxima': 10,
+                'estados_visitados': 44,
+                'memoria_maxima': 53,
+            },
         },
         # N1 es la excepción documentada del test estricto de DFS: es un pasillo
         # de 12 celdas sin ramificación real, así que DFS cae en el óptimo sin
@@ -111,6 +128,17 @@ ESPERADO = {
         'informatividad': {
             'h0': 0.0, 'h1': 4 / 45, 'h2': 11 / 45, 'h3': 14 / 45, 'h4': 18 / 45, 'h5': 18 / 45,
         },
+        'deadlocks': {
+            'celdas_muertas': 13,
+            'expandidos_por_capa': {'estaticos': 14_178, 'congelados': 9_839},
+            'bfs_completo': {
+                'nodos_expandidos': 9_839,
+                'nodos_generados': 24_719,
+                'frontera_maxima': 661,
+                'estados_visitados': 10_475,
+                'memoria_maxima': 11_111,
+            },
+        },
         'dfs_estrictamente_peor': True,
     },
     'n3_caminata': {
@@ -127,6 +155,17 @@ ESPERADO = {
         },
         'informatividad': {
             'h0': 0.0, 'h1': 2 / 104, 'h2': 12 / 104, 'h3': 12 / 104, 'h4': 12 / 104, 'h5': 13 / 104,
+        },
+        'deadlocks': {
+            'celdas_muertas': 23,
+            'expandidos_por_capa': {'estaticos': 2_002, 'congelados': 2_944},
+            'bfs_completo': {
+                'nodos_expandidos': 1_816,
+                'nodos_generados': 4_353,
+                'frontera_maxima': 79,
+                'estados_visitados': 1_826,
+                'memoria_maxima': 1_836,
+            },
         },
         'dfs_estrictamente_peor': True,
     },
@@ -145,6 +184,17 @@ ESPERADO = {
         'informatividad': {
             'h0': 0.0, 'h1': 4 / 70, 'h2': 16 / 70, 'h3': 20 / 70, 'h4': 22 / 70, 'h5': 24 / 70,
         },
+        'deadlocks': {
+            'celdas_muertas': 12,
+            'expandidos_por_capa': {'estaticos': 73_813, 'congelados': 214_466},
+            'bfs_completo': {
+                'nodos_expandidos': 60_410,
+                'nodos_generados': 155_205,
+                'frontera_maxima': 2_028,
+                'estados_visitados': 61_358,
+                'memoria_maxima': 62_306,
+            },
+        },
         'dfs_estrictamente_peor': True,
     },
     'n5_limite': {
@@ -161,6 +211,17 @@ ESPERADO = {
         },
         'informatividad': {
             'h0': 0.0, 'h1': 4 / 306, 'h2': 23 / 306, 'h3': 27 / 306, 'h4': 63 / 306, 'h5': 70 / 306,
+        },
+        'deadlocks': {
+            'celdas_muertas': 13,
+            'expandidos_por_capa': {'estaticos': 608_999, 'congelados': 508_669},
+            'bfs_completo': {
+                'nodos_expandidos': 429_817,
+                'nodos_generados': 1_064_551,
+                'frontera_maxima': 4_917,
+                'estados_visitados': 429_917,
+                'memoria_maxima': 430_017,
+            },
         },
         # No está en la lista del test estricto porque N5 no se corre ahí: DFS
         # en N5 da 6.992 contra un óptimo de 306, o sea 22x, pero verificarlo
@@ -192,6 +253,11 @@ HEURISTICAS_A_VERIFICAR = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
 #: cuando esa garantía hacía falta. Ver src/heuristicas/hna_sobreestimada.py.
 HEURISTICAS_NO_ADMISIBLES = ('hna', 'hna4')
 
+#: Las capas de poda que se someten a los tests de la Fase 5. `'ninguno'` queda
+#: afuera porque no es una capa: es la corrida sin detector, la referencia contra
+#: la que se comparan las otras tres.
+DETECTORES_A_VERIFICAR = ('estaticos', 'congelados', 'completo')
+
 
 def parametros_niveles(niveles=NIVELES_SUITE):
     """Los niveles como parámetros de pytest, con `lento` pegado a N4 y N5.
@@ -213,13 +279,23 @@ _CACHE_PROBLEMA = {}
 _CACHE_CORRIDA = {}
 
 
-def cargar_problema(nombre):
-    """El `Problema` de un nivel. Cacheado: construir el `Tablero` precalcula la
-    tabla de movimientos completa, y hay decenas de tests por nivel."""
-    if nombre not in _CACHE_PROBLEMA:
+def cargar_problema(nombre, deadlocks='ninguno'):
+    """El `Problema` de un nivel, con la capa de poda pedida. Cacheado.
+
+    Construir el `Tablero` precalcula la tabla de movimientos completa y hay
+    decenas de tests por nivel, así que se cachea por (nivel, capa).
+
+    `deadlocks='ninguno'` por defecto, y eso hace que ni un test de las Fases 2 a
+    4 cambie de significado: `sin_poda` devuelve `None` y el `Problema` queda
+    exactamente igual al de antes.
+    """
+    entrada = (nombre, deadlocks)
+    if entrada not in _CACHE_PROBLEMA:
         tablero, inicial = leer_archivo(NIVELES / f'{nombre}.sok')
-        _CACHE_PROBLEMA[nombre] = Problema(tablero, inicial)
-    return _CACHE_PROBLEMA[nombre]
+        _CACHE_PROBLEMA[entrada] = Problema(
+            tablero, inicial,
+            detector_deadlocks=construir_detector(deadlocks, tablero))
+    return _CACHE_PROBLEMA[entrada]
 
 
 def _lanzar(problema, clave, nivel):
@@ -240,16 +316,17 @@ def _lanzar(problema, clave, nivel):
     raise ValueError(f'Corrida desconocida: {clave!r}')
 
 
-def correr(nivel, clave='bfs'):
-    """El `Resultado` de (nivel, método), calculado una sola vez por sesión.
+def correr(nivel, clave='bfs', deadlocks='ninguno'):
+    """El `Resultado` de (nivel, método, capa de poda), una sola vez por sesión.
 
     `clave` es 'bfs', 'dfs', 'iddfs', 'astar_h0', 'astar_h1', 'greedy_h1'...
     Nunca se pasa `timeout_s`: el único corte es `max_nodos`, que es
     determinístico y por lo tanto reproducible entre máquinas.
     """
-    entrada = (nivel, clave)
+    entrada = (nivel, clave, deadlocks)
     if entrada not in _CACHE_CORRIDA:
-        _CACHE_CORRIDA[entrada] = _lanzar(cargar_problema(nivel), clave, nivel)
+        _CACHE_CORRIDA[entrada] = _lanzar(
+            cargar_problema(nivel, deadlocks), clave, nivel)
     return _CACHE_CORRIDA[entrada]
 
 
