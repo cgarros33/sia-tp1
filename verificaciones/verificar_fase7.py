@@ -20,10 +20,10 @@ LIMITE_BYTES = 2 * 1024 * 1024
 
 PLAN = (
     ('n1_micro.sok', 8, 5, 400, 'todos'),
-    ('n2_akk04.sok', 45, 18, 300, None),
-    ('n3_caminata.sok', 104, 22, 200, None),
-    ('n4_matching.sok', 70, 22, 100, None),
-    ('n5_limite.sok', 306, 99, 100, None),
+    ('n2_akk04.sok', 45, 18, 300, 'todos'),
+    ('n3_caminata.sok', 104, 22, 200, 'todos'),
+    ('n4_matching.sok', 70, 22, 100, 'todos'),
+    ('n5_limite.sok', 306, 99, 100, 'todos'),
 )
 
 MAX_NODOS = cargar_config(RAIZ / 'config.json')['max_nodos']
