@@ -8,14 +8,9 @@ from .hna_sobreestimada import hna, hna4
 
 
 def h0(problema):
-    metas = problema.tablero.metas
-    """h ≡ 0. La heurística trivial."""
+    """h ≡ 0. La heurística nula."""
     def calcular(estado):
-        numero = len(estado.cajas - metas) #resta de sets de las coordenadas en donde estan
-        if (numero > 0):
-            return 1
-        else:
-            return 0
+        return 0
     return calcular
 
 
