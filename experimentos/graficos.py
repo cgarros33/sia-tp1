@@ -115,8 +115,7 @@ def figura_1_metodos():
     panel.set_xlabel('nivel')
     panel.set_ylabel('nodos expandidos (escala log)')
     panel.set_ylim(top=2.5e7)
-    panel.set_title('Nodos expandidos por método y nivel'
-                    '   ·   h₆ y poda completa en los cinco métodos', fontsize=16)
+    panel.set_title('Nodos expandidos por método y nivel', fontsize=16)
     panel.grid(axis='x', visible=False)
 
     manijas, etiquetas = panel.get_legend_handles_labels()
@@ -207,8 +206,7 @@ def figura_2_dominancia():
                   fontsize=10.5, color=GRIS)
     relativo.legend(title='nivel', loc='lower left', ncol=2)
 
-    figura.suptitle('Dominancia empírica: la escalera h₀ → h₆ como trayectoria'
-                    '   ·   A* con poda completa', fontsize=16)
+    figura.suptitle('Dominancia empírica: la escalera h₀ → h₆ como trayectoria', fontsize=16)
     return guardar(figura, 'figura_2_dominancia')
 
 
@@ -339,8 +337,7 @@ def figura_3_barrido():
                    label='nodos expandidos, eje der. (log)'),
         plt.Line2D([], [], color=AZUL, linestyle=':', label='óptimo publicado'),
     ], loc='outside lower center', ncol=3)
-    figura.suptitle('Barrido de w: qué se paga por apurar la búsqueda'
-                    '   ·   h₆, poda completa', fontsize=16)
+    figura.suptitle('Barrido de w: qué se paga por apurar la búsqueda', fontsize=16)
     return guardar(figura, 'figura_3_barrido_w')
 
 
