@@ -11,7 +11,7 @@ def h0(problema):
     metas = problema.tablero.metas
     """h ≡ 0. La heurística trivial."""
     def calcular(estado):
-        numero = len(estado.cajas - metas)
+        numero = len(estado.cajas - metas) #resta de sets de las coordenadas en donde estan
         if (numero > 0):
             return 1
         else:
@@ -24,7 +24,7 @@ def h1(problema):
     metas = problema.tablero.metas
 
     def calcular(estado):
-        return len(estado.cajas - metas)
+        return len(estado.cajas - metas) #resta de sets de las coordenadas en donde estan
 
     return calcular
 
