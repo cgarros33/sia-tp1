@@ -39,7 +39,7 @@ def test_en_n1_la_suma_da_exacto_y_en_n2_no(resultado):
 
 
 @pytest.mark.parametrize('nivel', ('n2_akk04', 'n3_caminata'))
-@pytest.mark.parametrize('metodo', ('bfs', 'dfs', 'greedy_h1', 'astar_h1'))
+@pytest.mark.parametrize('metodo', ('bfs', 'dfs', 'greedy_h2', 'astar_h2'))
 def test_determinismo(nivel, metodo):
     """Dos corridas seguidas del mismo método sobre el mismo nivel son idénticas."""
     from .conftest import _lanzar
@@ -94,7 +94,7 @@ def test_dfs_es_estrictamente_peor_salvo_en_n1(resultado, nivel):
 @pytest.mark.parametrize('nivel', parametros_niveles())
 def test_greedy_es_mas_barato_y_no_mejor(resultado, nivel):
     """Greedy expande menos nodos que BFS y su costo es MAYOR O IGUAL al óptimo."""
-    r_greedy = resultado(nivel, 'greedy_h1')
+    r_greedy = resultado(nivel, 'greedy_h2')
     r_bfs = resultado(nivel, 'bfs')
     assert r_greedy.exito
     assert r_greedy.nodos_expandidos < r_bfs.nodos_expandidos
@@ -102,12 +102,12 @@ def test_greedy_es_mas_barato_y_no_mejor(resultado, nivel):
 
 
 @pytest.mark.parametrize('nivel', parametros_niveles())
-def test_astar_h1_domina_a_astar_h0(resultado, nivel):
-    """A*(h1) no expande más nodos que A*(h0) y devuelve el mismo costo."""
+def test_astar_h2_domina_a_astar_h0(resultado, nivel):
+    """A*(h2) no expande más nodos que A*(h0) y devuelve el mismo costo."""
     r_h0 = resultado(nivel, 'astar_h0')
-    r_h1 = resultado(nivel, 'astar_h1')
-    assert r_h1.costo == r_h0.costo
-    assert r_h1.nodos_expandidos <= r_h0.nodos_expandidos
+    r_h2 = resultado(nivel, 'astar_h2')
+    assert r_h2.costo == r_h0.costo
+    assert r_h2.nodos_expandidos <= r_h0.nodos_expandidos
 
 
 @pytest.mark.lento

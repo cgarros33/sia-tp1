@@ -20,7 +20,7 @@ NUMEROS_DE_ORO = {
     "n5_limite": {"costo": 306, "empujes": 99},
 }
 
-HEURISTICAS_ADMISIBLES = ("h0", "h1", "h2", "h3", "h4", "h5")
+HEURISTICAS_ADMISIBLES = ("h0", "h1", "h2", "h3", "h4", "h5", "h6")
 
 
 def verificar_csv_valido() -> list[str]:
@@ -52,13 +52,13 @@ def verificar_csv_valido() -> list[str]:
             },
             {
                 "metodo": "greedy",
-                "heuristicas": ["h1"],
+                "heuristicas": ["h2"],
                 "niveles": ["n1_micro"],
                 "deadlocks": ["completo"],
             },
             {
                 "metodo": "astar",
-                "heuristicas": ["h1"],
+                "heuristicas": ["h2"],
                 "niveles": ["n1_micro"],
                 "deadlocks": ["completo"],
             },

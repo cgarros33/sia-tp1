@@ -35,7 +35,7 @@ def test_csv_valido(tmp_path):
             },
             {
                 "metodo": "astar",
-                "heuristicas": ["h1"],
+                "heuristicas": ["h2"],
                 "niveles": ["n1_micro"],
                 "deadlocks": ["completo"],
             },
@@ -52,12 +52,12 @@ def test_csv_valido(tmp_path):
 
 @pytest.mark.parametrize("nivel", ["n1_micro", "n2_akk04", "n3_caminata"])
 def test_costos_optimos_light(nivel, tmp_path):
-    """Verifica que BFS y A*(h5) encuentren el costo publicado en N1-N3."""
+    """Verifica que BFS y A*(h6) encuentren el costo publicado en N1-N3."""
     config = {
         "runs": 1,
         "matriz": [
             {"metodo": "bfs", "niveles": [nivel], "deadlocks": ["completo"]},
-            {"metodo": "astar", "heuristicas": ["h5"], "niveles": [nivel], "deadlocks": ["completo"]},
+            {"metodo": "astar", "heuristicas": ["h6"], "niveles": [nivel], "deadlocks": ["completo"]},
         ],
     }
     filas = _crear_y_ejecutar(config, tmp_path)
@@ -90,11 +90,11 @@ def test_dfs_24_ordenes_light(tmp_path):
 @pytest.mark.lento
 @pytest.mark.parametrize("nivel", ["n4_matching", "n5_limite"])
 def test_costos_optimos_medium(nivel, tmp_path):
-    """Verifica que A*(h5) encuentre el costo óptimo publicado en N4 y N5."""
+    """Verifica que A*(h6) encuentre el costo óptimo publicado en N4 y N5."""
     config = {
         "runs": 1,
         "matriz": [
-            {"metodo": "astar", "heuristicas": ["h5"], "niveles": [nivel], "deadlocks": ["completo"]}
+            {"metodo": "astar", "heuristicas": ["h6"], "niveles": [nivel], "deadlocks": ["completo"]}
         ],
     }
     filas = _crear_y_ejecutar(config, tmp_path)

@@ -1,9 +1,9 @@
-"""h₂ — suma de distancias de Manhattan de cada caja a su meta más cercana."""
+"""h₃ — suma de distancias de Manhattan de cada caja a su meta más cercana."""
 
 from .distancias import distancias_manhattan
 
 
-def h2(problema):
+def h3(problema):
     """Fábrica: precalcula la tabla del nivel y devuelve la función `estado -> int`."""
     minimo_a_una_meta = distancias_manhattan(problema.tablero)
 

@@ -37,13 +37,13 @@
     },
     {
       "metodo": "greedy",
-      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "h6", "hna", "hna4"],
       "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
       "deadlocks": ["completo"]
     },
     {
       "metodo": "astar",
-      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "hna", "hna4"],
+      "heuristicas": ["h0", "h1", "h2", "h3", "h4", "h5", "h6", "hna", "hna4"],
       "niveles": ["n1_micro", "n2_akk04", "n3_caminata", "n4_matching", "n5_limite"],
       "deadlocks": ["completo"]
     }

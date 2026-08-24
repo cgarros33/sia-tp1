@@ -1,14 +1,14 @@
-"""h₃ — asignación óptima caja↔meta, con distancias de Manhattan."""
+"""h₅ — asignación óptima caja↔meta, con distancias reales de empuje."""
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 
-from .distancias import distancias_manhattan_por_meta
+from .distancias import costos_de_empuje_por_celda
 
 
-def h3(problema):
-    """Fábrica: precalcula la matriz de costos por celda y devuelve `estado -> int`."""
-    costos_por_celda = distancias_manhattan_por_meta(problema.tablero)
+def h5(problema):
+    """Fábrica: precalcula la matriz de empujes por celda y devuelve `estado -> int`."""
+    costos_por_celda = costos_de_empuje_por_celda(problema.tablero)
 
     memoria = {}
 

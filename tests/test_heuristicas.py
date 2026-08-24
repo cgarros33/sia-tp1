@@ -51,13 +51,13 @@ def test_informatividad_no_baja(problema, camino, nivel, nombre_h):
     assert medida >= ESPERADO[nivel]['informatividad'][nombre_h] - 1e-9
 
 
-@pytest.mark.parametrize('nombre_h', ('h0', 'h1'))
+@pytest.mark.parametrize('nombre_h', ('h0', 'h1', 'h2'))
 @pytest.mark.parametrize('nivel', parametros_niveles())
-def test_h0_no_informa_y_h1_si(problema, camino, nivel, nombre_h):
-    """h0 vale 0 en el inicial por definición; h1 vale la cantidad de cajas."""
+def test_los_tres_primeros_escalones_en_el_inicial(problema, camino, nivel, nombre_h):
+    """h0 vale 0; h1 vale 1 mientras quede una caja fuera; h2 vale cuántas quedan."""
     p = problema(nivel)
     h = construir(nombre_h, p)
-    esperado = 0 if nombre_h == 'h0' else ESPERADO[nivel]['cajas']
+    esperado = {'h0': 0, 'h1': 1, 'h2': ESPERADO[nivel]['cajas']}[nombre_h]
     assert h(p.inicial) == esperado
 
 

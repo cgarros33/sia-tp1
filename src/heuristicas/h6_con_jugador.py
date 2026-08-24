@@ -1,12 +1,12 @@
-"""h₅ — h₄ más el recorrido del jugador hasta el primer empuje."""
+"""h₆ — h₅ más el recorrido del jugador hasta el primer empuje."""
 
 from .distancias import INALCANZABLE, distancias_libres
-from .h4_matching_real import h4
+from .h5_matching_real import h5
 
 
-def h5(problema):
-    """Fábrica: h₄ más el término del jugador, con las dos tablas precalculadas."""
-    empujes_que_faltan = h4(problema)
+def h6(problema):
+    """Fábrica: h₅ más el término del jugador, con las dos tablas precalculadas."""
+    empujes_que_faltan = h5(problema)
     caminata = distancias_libres(problema.tablero)
     es_meta = problema.es_meta
 

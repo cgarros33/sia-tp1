@@ -40,16 +40,16 @@ def test_control_del_motor_astar_h0_es_bfs(resultado, nivel):
 
 @pytest.mark.parametrize('nivel', parametros_niveles())
 def test_astar_con_heuristica_admisible_es_optimo(resultado, nivel):
-    """A*(h1) reproduce el óptimo publicado."""
+    """A*(h2) reproduce el óptimo publicado."""
     esperado = ESPERADO[nivel]
-    r = resultado(nivel, 'astar_h1')
+    r = resultado(nivel, 'astar_h2')
     assert r.exito
     assert r.costo == esperado['costo']
     assert r.empujes == esperado['empujes']
 
 
 @pytest.mark.parametrize('nivel', parametros_niveles())
-@pytest.mark.parametrize('metodo', ('bfs', 'astar_h0', 'astar_h1', 'dfs', 'greedy_h1'))
+@pytest.mark.parametrize('metodo', ('bfs', 'astar_h0', 'astar_h2', 'dfs', 'greedy_h2'))
 def test_la_solucion_es_ejecutable(problema, resultado, nivel, metodo):
     """Aplicar la secuencia de acciones desde el inicial termina en meta."""
     p = problema(nivel)

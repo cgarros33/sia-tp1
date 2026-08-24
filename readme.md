@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 
 Las dependencias son cinco y cada una tiene un motivo acotado: `numpy` y
-`scipy` para el matching húngaro de las heurísticas h₃/h₄, `Pillow` para dibujar
+`scipy` para el matching húngaro de las heurísticas h₄/h₅, `Pillow` para dibujar
 los tableros y los GIF, `matplotlib` para las figuras de análisis y `pytest`
 para la suite de regresión. El motor de búsqueda en sí (`src/busqueda/`,
 `src/modelo/`) no usa nada fuera de la biblioteca estándar.
@@ -43,7 +43,7 @@ python main.py mi_config.json       # usa otro archivo
 Los flags existen para probar rápido mientras se trabaja y **pisan** al archivo:
 
 ```bash
-python main.py --nivel niveles/n3_caminata.sok --metodo astar --heuristica h5 --deadlocks completo
+python main.py --nivel niveles/n3_caminata.sok --metodo astar --heuristica h6 --deadlocks completo
 ```
 
 ### Qué imprime
@@ -89,7 +89,7 @@ una corrida perfectamente exitosa que no es la que se pidió.
 {
   "nivel": "niveles/n4_matching.sok",
   "metodo": "astar",
-  "heuristica": "h1",
+  "heuristica": "h2",
   "deadlocks": "ninguno",
   "timeout_s": 300,
   "max_nodos": 3000000,
@@ -103,7 +103,7 @@ una corrida perfectamente exitosa que no es la que se pidió.
 |---|---|---|
 | `nivel` | ruta a un `.sok` | ver [Niveles](#niveles) |
 | `metodo` | `bfs`, `dfs`, `iddfs`, `iddfs_puro`, `greedy`, `astar`, `hpa` | ver [Métodos](#métodos-de-búsqueda) |
-| `heuristica` | `h0`…`h5`, `hna`, `hna4` | sólo la usan `greedy`, `astar` y `hpa` |
+| `heuristica` | `h0`…`h6`, `hna`, `hna4` | sólo la usan `greedy`, `astar` y `hpa` |
 | `deadlocks` | `ninguno`, `estaticos`, `congelados`, `completo` | ver [Poda](#poda-de-deadlocks) |
 | `timeout_s` | segundos | corte por tiempo |
 | `max_nodos` | entero | corte determinístico por nodos expandidos |
@@ -148,13 +148,20 @@ admisibilidad de cada una está escrita en el docstring de su módulo, en
 | | Qué calcula | Admisible | Arregla |
 |---|---|---|---|
 | `h0` | 0 | sí | — (control: A\*(h₀) debe igualar a BFS) |
-| `h1` | cajas fuera de meta | sí | — (línea de base) |
-| `h2` | Σ Manhattan a la meta más cercana | sí | h₁ no distingue cerca de lejos |
-| `h3` | matching óptimo con Manhattan | sí | h₂ asigna varias cajas a la misma meta |
-| `h4` | matching con distancias reales de empuje | sí | h₃ atraviesa paredes |
-| `h5` | h₄ + término del jugador | sí | las anteriores ignoran al jugador |
-| `hna` | 2·h₄ | **no** | nada: es el experimento de control |
-| `hna4` | 4·h₄ | **no** | nada: es el experimento de control |
+| `h1` | 1 si queda alguna caja fuera de meta | sí | — (línea de base) |
+| `h2` | cajas fuera de meta | sí | h₁ no distingue una caja de cuatro |
+| `h3` | Σ Manhattan a la meta más cercana | sí | h₂ no distingue cerca de lejos |
+| `h4` | matching óptimo con Manhattan | sí | h₃ asigna varias cajas a la misma meta |
+| `h5` | matching con distancias reales de empuje | sí | h₄ atraviesa paredes |
+| `h6` | h₅ + término del jugador | sí | las anteriores ignoran al jugador |
+| `hna` | 2·h₅ | **no** | nada: es el experimento de control |
+| `hna4` | 4·h₅ | **no** | nada: es el experimento de control |
+
+`h1` es admisible pero no informa: como vale 1 en todo estado que no es meta,
+Greedy con ella empata en todos lados y desempata por orden de inserción, o sea
+que se comporta igual que BFS. Es el escalón que muestra que *admisible* y
+*útil* son dos cosas distintas: A\*(h₁) expande 429.708 nodos en N5 contra los
+429.817 de A\*(h₀).
 
 Las dos últimas son **no admisibles a propósito**, para mostrar qué se rompe
 cuando se pierde la garantía de optimalidad. Y no se rompe lo mismo en las dos:
@@ -212,7 +219,7 @@ python -m runner.runner mi_matriz.json -o otro.csv
 
 La matriz se define en `runner/config_runner.json` (hay un
 `config_runner.example.json` comentado al lado). El `resultados.csv` del
-repositorio son 645 corridas y tarda un rato largo: está commiteado justamente
+repositorio son 695 corridas y tarda un rato largo: está commiteado justamente
 para no tener que regenerarlo.
 
 Criterio de repeticiones: BFS, IDDFS, Greedy y A\* son **determinísticos**, así
@@ -263,7 +270,7 @@ pytest -m "not lento"           # saltea N4, N5 e IDDFS sobre N2/N3
 pytest -m "not completo"        # saltea las corridas más pesadas
 ```
 
-416 tests. Fijan los **números de oro**: si un cambio en `src/` rompe un costo
+441 tests. Fijan los **números de oro**: si un cambio en `src/` rompe un costo
 publicado o mueve una pared de un `.sok`, la suite se pone en rojo.
 
 Los costos y empujes están validados contra los récords humanos (verdad externa,

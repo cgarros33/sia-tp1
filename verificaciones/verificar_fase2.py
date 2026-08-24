@@ -64,11 +64,11 @@ def _verificar_ejecutable(problema, resultado) -> list[str]:
 
 
 def _verificar_heuristicas(problema, camino_optimo) -> list[str]:
-    """Admisibilidad y consistencia de h0 y h1 sobre el camino óptimo del nivel."""
+    """Admisibilidad y consistencia de h0 y h2 sobre el camino óptimo del nivel."""
     errores = []
     print(f'  admisibilidad y consistencia sobre el camino óptimo '
           f'({len(camino_optimo)} estados):')
-    for nombre in ('h0', 'h1'):
+    for nombre in ('h0', 'h2'):
         h = construir(nombre, problema)
         fallos_adm, fallos_cons = verificar_heuristica(problema, h, camino_optimo)
         estado_adm = 'OK' if not fallos_adm else 'FALLA'
@@ -85,7 +85,7 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     tablero, inicial = leer_archivo(NIVELES / archivo)
     problema = Problema(tablero, inicial)
     h0 = construir('h0', problema)
-    h1 = construir('h1', problema)
+    h2 = construir('h2', problema)
     errores = []
 
     print(f'=== {archivo}  (óptimo publicado: {costo_optimo} mov / '
@@ -127,21 +127,21 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
     _fila('A*(h0)', r_h0, nota)
     errores += _verificar_ejecutable(problema, r_h0)
 
-    r_h1 = a_estrella(problema, h1, 'h1', max_nodos=MAX_NODOS, nivel=archivo)
-    if r_h1.exito and r_h1.costo == costo_optimo:
-        ahorro = 100 * (1 - r_h1.nodos_expandidos / r_bfs.nodos_expandidos)
+    r_h2 = a_estrella(problema, h2, 'h2', max_nodos=MAX_NODOS, nivel=archivo)
+    if r_h2.exito and r_h2.costo == costo_optimo:
+        ahorro = 100 * (1 - r_h2.nodos_expandidos / r_bfs.nodos_expandidos)
         nota = f'OK  {ahorro:.1f} % menos nodos que BFS'
     else:
         nota = 'FALLA: no reprodujo el óptimo'
-        errores.append(f'A*(h1) da costo {r_h1.costo} y el óptimo es {costo_optimo}. '
+        errores.append(f'A*(h2) da costo {r_h2.costo} y el óptimo es {costo_optimo}. '
                        f'Con una heurística admisible A* tiene que ser óptimo.')
-    _fila('A*(h1)', r_h1, nota)
-    errores += _verificar_ejecutable(problema, r_h1)
+    _fila('A*(h2)', r_h2, nota)
+    errores += _verificar_ejecutable(problema, r_h2)
 
-    r_greedy = greedy(problema, h1, 'h1', max_nodos=MAX_NODOS, nivel=archivo)
+    r_greedy = greedy(problema, h2, 'h2', max_nodos=MAX_NODOS, nivel=archivo)
     if not r_greedy.exito:
         nota = f'FALLA: {r_greedy.motivo_fin}'
-        errores.append(f'Greedy(h1) no encontró solución ({r_greedy.motivo_fin})')
+        errores.append(f'Greedy(h2) no encontró solución ({r_greedy.motivo_fin})')
     else:
         problemas = []
         if r_greedy.costo < costo_optimo:
@@ -150,13 +150,13 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos, dfs_estricto,
             problemas.append('no expandió menos nodos que BFS')
         if problemas:
             nota = 'FALLA: ' + '; '.join(problemas)
-            errores.append(f'Greedy(h1): {"; ".join(problemas)}')
+            errores.append(f'Greedy(h2): {"; ".join(problemas)}')
         elif r_greedy.costo == costo_optimo:
             nota = 'OK  óptimo por casualidad, sin garantía'
         else:
             factor = r_bfs.nodos_expandidos / r_greedy.nodos_expandidos
             nota = f'subóptimo (esperado), {_factor(factor)}x menos nodos que BFS'
-    _fila('Greedy(h1)', r_greedy, nota)
+    _fila('Greedy(h2)', r_greedy, nota)
     errores += _verificar_ejecutable(problema, r_greedy)
 
     r_dfs = dfs(problema, max_nodos=MAX_NODOS, nivel=archivo)

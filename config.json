@@ -1,7 +1,7 @@
 {
   "nivel": "niveles/n4_matching.sok",
   "metodo": "astar",
-  "heuristica": "h1",
+  "heuristica": "h2",
   "deadlocks": "ninguno",
   "timeout_s": 300,
   "max_nodos": 3000000,

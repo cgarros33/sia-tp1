@@ -21,11 +21,11 @@ ESPERADO = (
     ('n5_limite.sok', 306, 99),
 )
 
-ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
+ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 
 NO_ADMISIBLES = ('hna', 'hna4')
 
-CADENA = ('h1', 'h2', 'h3', 'h4', 'h5')
+CADENA = ('h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 
 NIVEL_DEL_CRITERIO = 'n4_matching.sok'
 
@@ -54,7 +54,7 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos):
     print(f'=== {archivo}  (óptimo publicado: {costo_optimo} mov / '
           f'{empujes_optimos} empujes) ===')
     print(f'  celdas muertas: {len(muertas)} de {len(tablero.transitables)} '
-          f'transitables — subproducto de h4, la poda es la Fase 5')
+          f'transitables — subproducto de h5, la poda es la Fase 5')
 
     if inicial.cajas & muertas:
         errores.append(
@@ -150,14 +150,14 @@ def verificar_nivel(archivo, costo_optimo, empujes_optimos):
             f'sumo los mismos nodos sólo bajo ciertas condiciones.')
 
     if archivo == NIVEL_DEL_CRITERIO:
-        n2, n3 = medidas['h2'][2], medidas['h3'][2]
-        if n3 < n2 and medidas['h2'][3] == medidas['h3'][3] == costo_optimo:
-            print(f'  CRITERIO DE LA FASE:  A*(h3)={_n(n3)} < A*(h2)={_n(n2)} '
+        n3, n4 = medidas['h3'][2], medidas['h4'][2]
+        if n4 < n3 and medidas['h3'][3] == medidas['h4'][3] == costo_optimo:
+            print(f'  CRITERIO DE LA FASE:  A*(h4)={_n(n4)} < A*(h3)={_n(n3)} '
                   f'con el mismo costo {costo_optimo}  OK')
         else:
             errores.append(
-                f'CRITERIO DE LA FASE: en {archivo} A*(h3) expandió {_n(n3)} y '
-                f'A*(h2) expandió {_n(n2)}. Se pide que h3 expanda menos, con el '
+                f'CRITERIO DE LA FASE: en {archivo} A*(h4) expandió {_n(n4)} y '
+                f'A*(h3) expandió {_n(n3)}. Se pide que h4 expanda menos, con el '
                 f'mismo costo.')
 
     print()

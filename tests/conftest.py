@@ -31,7 +31,8 @@ ESPERADO = {
             'memoria_maxima': 62,
         },
         'informatividad': {
-            'h0': 0.0, 'h1': 1 / 8, 'h2': 5 / 8, 'h3': 5 / 8, 'h4': 5 / 8, 'h5': 6 / 8,
+            'h0': 0.0, 'h1': 1 / 8, 'h2': 1 / 8, 'h3': 5 / 8,
+            'h4': 5 / 8, 'h5': 5 / 8, 'h6': 6 / 8,
         },
         'deadlocks': {
             'celdas_muertas': 5,
@@ -59,7 +60,8 @@ ESPERADO = {
             'memoria_maxima': 49_434,
         },
         'informatividad': {
-            'h0': 0.0, 'h1': 4 / 45, 'h2': 11 / 45, 'h3': 14 / 45, 'h4': 18 / 45, 'h5': 18 / 45,
+            'h0': 0.0, 'h1': 1 / 45, 'h2': 4 / 45, 'h3': 11 / 45,
+            'h4': 14 / 45, 'h5': 18 / 45, 'h6': 18 / 45,
         },
         'deadlocks': {
             'celdas_muertas': 13,
@@ -87,7 +89,8 @@ ESPERADO = {
             'memoria_maxima': 6_622,
         },
         'informatividad': {
-            'h0': 0.0, 'h1': 2 / 104, 'h2': 12 / 104, 'h3': 12 / 104, 'h4': 12 / 104, 'h5': 13 / 104,
+            'h0': 0.0, 'h1': 1 / 104, 'h2': 2 / 104, 'h3': 12 / 104,
+            'h4': 12 / 104, 'h5': 12 / 104, 'h6': 13 / 104,
         },
         'deadlocks': {
             'celdas_muertas': 23,
@@ -115,7 +118,8 @@ ESPERADO = {
             'memoria_maxima': 671_278,
         },
         'informatividad': {
-            'h0': 0.0, 'h1': 4 / 70, 'h2': 16 / 70, 'h3': 20 / 70, 'h4': 22 / 70, 'h5': 24 / 70,
+            'h0': 0.0, 'h1': 1 / 70, 'h2': 4 / 70, 'h3': 16 / 70,
+            'h4': 20 / 70, 'h5': 22 / 70, 'h6': 24 / 70,
         },
         'deadlocks': {
             'celdas_muertas': 12,
@@ -143,7 +147,8 @@ ESPERADO = {
             'memoria_maxima': 2_028_699,
         },
         'informatividad': {
-            'h0': 0.0, 'h1': 4 / 306, 'h2': 23 / 306, 'h3': 27 / 306, 'h4': 63 / 306, 'h5': 70 / 306,
+            'h0': 0.0, 'h1': 1 / 306, 'h2': 4 / 306, 'h3': 23 / 306,
+            'h4': 27 / 306, 'h5': 63 / 306, 'h6': 70 / 306,
         },
         'deadlocks': {
             'celdas_muertas': 13,
@@ -163,7 +168,7 @@ ESPERADO = {
 COLUMNAS_BFS = ('nodos_expandidos', 'nodos_generados', 'frontera_maxima',
                 'estados_visitados', 'memoria_maxima')
 
-HEURISTICAS_A_VERIFICAR = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
+HEURISTICAS_A_VERIFICAR = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 
 HEURISTICAS_NO_ADMISIBLES = ('hna', 'hna4')
 

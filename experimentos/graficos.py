@@ -69,8 +69,8 @@ def guardar(figura, nombre):
 METODOS_FIGURA_1 = (
     ('BFS', 'BFS', '—', True, ''),
     ('IDDFS', 'IDDFS', '—', True, '..'),
-    ('A*(h₅)', 'A*', 'h5', True, '//'),
-    ('Greedy(h₅)', 'Greedy', 'h5', False, 'xx'),
+    ('A*(h₆)', 'A*', 'h6', True, '//'),
+    ('Greedy(h₆)', 'Greedy', 'h6', False, 'xx'),
     ('DFS', 'DFS', '—', False, '\\\\'),
 )
 
@@ -116,7 +116,7 @@ def figura_1_metodos():
     panel.set_ylabel('nodos expandidos (escala log)')
     panel.set_ylim(top=2.5e7)
     panel.set_title('Figura 1 — Nodos expandidos por método y nivel'
-                    '   ·   h₅ y poda completa en los cinco métodos', fontsize=16)
+                    '   ·   h₆ y poda completa en los cinco métodos', fontsize=16)
     panel.grid(axis='x', visible=False)
 
     manijas, etiquetas = panel.get_legend_handles_labels()
@@ -127,7 +127,7 @@ def figura_1_metodos():
     return guardar(figura, 'figura_1_metodos')
 
 
-ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5')
+ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
 
 
 def figura_2_dominancia():
@@ -172,7 +172,7 @@ def figura_2_dominancia():
     relativo.set_title('Relativo a A*(h₀): acá se ve cuánto compra cada eslabón')
     relativo.legend(title='nivel', loc='lower left', ncol=2)
 
-    figura.suptitle('Figura 2 — Dominancia empírica: la escalera h₀ → h₅ como trayectoria'
+    figura.suptitle('Figura 2 — Dominancia empírica: la escalera h₀ → h₆ como trayectoria'
                     '   ·   A* con poda completa', fontsize=16)
     return guardar(figura, 'figura_2_dominancia')
 
@@ -305,7 +305,7 @@ def figura_3_barrido():
         plt.Line2D([], [], color=AZUL, linestyle=':', label='óptimo publicado'),
     ], loc='outside lower center', ncol=3)
     figura.suptitle('Figura 3 — Barrido de w: qué se paga por apurar la búsqueda'
-                    '   ·   h₅, poda completa', fontsize=16)
+                    '   ·   h₆, poda completa', fontsize=16)
     return guardar(figura, 'figura_3_barrido_w')
 
 

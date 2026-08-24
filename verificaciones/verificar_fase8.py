@@ -79,7 +79,7 @@ def comprobar_2():
 
     barrido = graficos.leer(graficos.CSV_BARRIDO)
     matriz = [f for f in graficos.leer(graficos.CSV_MATRIZ)
-              if f['deadlocks'] == 'completo' and f['heuristica'] == 'h5'
+              if f['deadlocks'] == 'completo' and f['heuristica'] == 'h6'
               and f['corrida'] == '1']
     print(f'  {len(barrido)} corridas en {graficos.CSV_BARRIDO.relative_to(RAIZ)}')
 
@@ -96,7 +96,7 @@ def comprobar_2():
             if medido != esperado:
                 errores.append(
                     f'el barrido en w={w} sobre {fila["nivel"]} da '
-                    f'{medido} y {metodo}(h5) da {esperado}. En ese punto el HPA '
+                    f'{medido} y {metodo}(h6) da {esperado}. En ese punto el HPA '
                     f'ES ese método, así que tienen que coincidir exactamente.')
 
     subóptimas = [f for f in barrido

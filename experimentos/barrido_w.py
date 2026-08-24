@@ -23,7 +23,7 @@ NIVELES_DEL_BARRIDO = (
     ('n4_matching', 70),
 )
 
-HEURISTICA = 'h5'
+HEURISTICA = 'h6'
 DEADLOCKS = 'completo'
 
 COLUMNAS = [

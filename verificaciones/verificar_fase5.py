@@ -23,7 +23,7 @@ ESPERADO = (
 
 CAPAS = ('ninguno', 'estaticos', 'congelados', 'completo')
 
-METODOS = (('BFS', None), ('A*(h4)', 'h4'), ('A*(h5)', 'h5'))
+METODOS = (('BFS', None), ('A*(h5)', 'h5'), ('A*(h6)', 'h6'))
 
 MAX_NODOS = cargar_config(RAIZ / 'config.json')['max_nodos']
 
