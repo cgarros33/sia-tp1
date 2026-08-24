@@ -115,19 +115,40 @@ def figura_1_metodos():
     panel.set_xlabel('nivel')
     panel.set_ylabel('nodos expandidos (escala log)')
     panel.set_ylim(top=2.5e7)
-    panel.set_title('Figura 1 — Nodos expandidos por método y nivel'
+    panel.set_title('Nodos expandidos por método y nivel'
                     '   ·   h₆ y poda completa en los cinco métodos', fontsize=16)
     panel.grid(axis='x', visible=False)
 
     manijas, etiquetas = panel.get_legend_handles_labels()
     manijas.append(plt.Rectangle((0, 0), 1, 1, facecolor='white', edgecolor=TINTA))
-    etiquetas.append('azul: devuelve el óptimo · arena: no\n'
-                     'bigotes en DFS: rango exacto de las 24 permutaciones')
     panel.legend(manijas, etiquetas, ncol=3, loc='upper left', framealpha=0.95)
     return guardar(figura, 'figura_1_metodos')
 
 
 ESCALERA = ('h0', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6')
+
+DISTANCIA_MINIMA_ENTRE_ROTULOS = 0.03
+
+# Las cinco trayectorias arrancan en el mismo punto (h₀ en x=0, y=1), así que
+# rotular las cinco amontona 35 etiquetas. Se rotula una sola y las otras se
+# leen igual: los eslabones van siempre de izquierda a derecha.
+NIVEL_ROTULADO = 'n4_matching'
+
+
+def agrupar_rotulos(puntos, ancho, alto):
+    """Un rótulo por eslabón, salvo los que caen casi encima: esos van juntos."""
+    grupos = []
+    for nombre, (x, y) in zip(ESCALERA, puntos):
+        if grupos:
+            x_previo, y_previo = grupos[-1][1]
+            distancia = (((x - x_previo) / ancho) ** 2
+                         + ((y - y_previo) / alto) ** 2) ** 0.5
+            if distancia < DISTANCIA_MINIMA_ENTRE_ROTULOS:
+                grupos[-1] = ([grupos[-1][0][0], nombre], (x, y))
+                continue
+        grupos.append(([nombre], (x, y)))
+    return [('–'.join(sorted(set(nombres), key=ESCALERA.index)), punto)
+            for nombres, punto in grupos]
 
 
 def figura_2_dominancia():
@@ -140,8 +161,8 @@ def figura_2_dominancia():
              if f['metodo'] == 'A*' and f['deadlocks'] == 'completo'
              and f['corrida'] == '1']
 
-    figura, (absoluto, relativo) = plt.subplots(1, 2, figsize=(16, 6.6))
-    for (nivel, optimo), color, marcador in zip(NIVELES, POR_NIVEL, MARCADORES):
+    trayectorias = []
+    for nivel, optimo in NIVELES:
         tablero, inicial = leer_archivo(RAIZ / 'niveles' / f'{nivel}.sok')
         problema = Problema(tablero, inicial,
                             detector_deadlocks=construir_detector('completo', tablero))
@@ -151,14 +172,24 @@ def figura_2_dominancia():
             x.append(h(inicial) / optimo)
             y.append(int(next(f['nodos_expandidos'] for f in filas
                               if f['nivel'] == nivel and f['heuristica'] == nombre)))
+        trayectorias.append((nivel, x, y))
 
+    ancho = max(max(x) for _, x, _ in trayectorias)
+    alto = 1.12
+
+    figura, (absoluto, relativo) = plt.subplots(1, 2, figsize=(16, 6.6))
+    for (nivel, x, y), color, marcador in zip(trayectorias, POR_NIVEL, MARCADORES):
+        relativos = [yi / y[0] for yi in y]
         absoluto.plot(x, y, marker=marcador, color=color, label=nivel, linewidth=1.8)
-        relativo.plot(x, [yi / y[0] for yi in y], marker=marcador, color=color,
+        relativo.plot(x, relativos, marker=marcador, color=color,
                       label=nivel, linewidth=1.8)
-        for i, (xi, yi, nombre) in enumerate(zip(x, y, ESCALERA)):
-            desplazamiento = (5, 7) if i % 2 == 0 else (5, -14)
-            relativo.annotate(nombre, xy=(xi, yi / y[0]), xytext=desplazamiento,
-                              textcoords='offset points', fontsize=10, color=GRIS)
+        if nivel != NIVEL_ROTULADO:
+            continue
+        for i, (nombre, (xi, yi)) in enumerate(
+                agrupar_rotulos(list(zip(x, relativos)), ancho, alto)):
+            desplazamiento = (6, 7) if i % 2 == 0 else (6, -15)
+            relativo.annotate(nombre, xy=(xi, yi), xytext=desplazamiento,
+                              textcoords='offset points', fontsize=11, color=TINTA)
 
     absoluto.set_yscale('log')
     absoluto.set_xlabel('informatividad   h(s₀) / óptimo publicado')
@@ -170,9 +201,13 @@ def figura_2_dominancia():
     relativo.set_ylabel('nodos expandidos ÷ los de A*(h₀) en el mismo nivel')
     relativo.set_ylim(0, 1.12)
     relativo.set_title('Relativo a A*(h₀): acá se ve cuánto compra cada eslabón')
+    relativo.text(0.97, 0.80, f'eslabones rotulados sobre {NIVEL_ROTULADO}\n'
+                              f'en los otros niveles van en el mismo orden',
+                  transform=relativo.transAxes, ha='right', va='top',
+                  fontsize=10.5, color=GRIS)
     relativo.legend(title='nivel', loc='lower left', ncol=2)
 
-    figura.suptitle('Figura 2 — Dominancia empírica: la escalera h₀ → h₆ como trayectoria'
+    figura.suptitle('Dominancia empírica: la escalera h₀ → h₆ como trayectoria'
                     '   ·   A* con poda completa', fontsize=16)
     return guardar(figura, 'figura_2_dominancia')
 
@@ -236,7 +271,7 @@ def figura_4_el_muro():
     panel.set_xlabel('tamaño estimado del espacio de estados   '
                      'celdas × C(celdas, cajas)   (escala log)')
     panel.set_ylabel('nodos expandidos por BFS sin poda (escala log)')
-    panel.set_title('Figura 4 — El muro: el límite es combinatorio, no de largo de solución',
+    panel.set_title('El muro: el límite es combinatorio, no de largo de solución',
                     fontsize=16)
     panel.set_ylim(bottom=6, top=DESCARTADO_NODOS * 30)
     panel.set_xlim(right=x_descartado * 25)
@@ -304,7 +339,7 @@ def figura_3_barrido():
                    label='nodos expandidos, eje der. (log)'),
         plt.Line2D([], [], color=AZUL, linestyle=':', label='óptimo publicado'),
     ], loc='outside lower center', ncol=3)
-    figura.suptitle('Figura 3 — Barrido de w: qué se paga por apurar la búsqueda'
+    figura.suptitle('Barrido de w: qué se paga por apurar la búsqueda'
                     '   ·   h₆, poda completa', fontsize=16)
     return guardar(figura, 'figura_3_barrido_w')
 
