@@ -41,7 +41,5 @@ Desktop.ini
 scratch/
 tmp/
 
-# OJO: las salidas de las fases 6, 7 y 8 —resultados.csv, el GIF de N1, las
-# figuras— SÍ van al repositorio. Son la evidencia de los números que se
-# muestran en la presentación y tienen que poder mirarse sin volver a correr
-# nada. No las agregues acá.
+.csv
+/presentacion

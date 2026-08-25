@@ -184,7 +184,7 @@ así que ningún camino óptimo pasa por ellos.
 - `completo` — las dos anteriores.
 
 Las dos reglas **no se dominan entre sí**: cada una detecta casos que la otra
-no ve. Está medido en `docs/resumenes/FASE_5_RESUMEN.md`.
+no ve. Está medido en `docs/development_log/FASE_5_RESUMEN.md`.
 
 ---
 
@@ -253,6 +253,7 @@ empujes de BFS son los que están contrastados contra los récords publicados.
 ```bash
 python -m experimentos.barrido_w        # genera experimentos/barrido_w.csv
 python -m experimentos.graficos         # genera presentacion/figuras/ (PNG + PDF)
+python -m experimentos.graficos_métodos # genera el resto de las figuras en presentación/figuras/ (PNG + PDF)
 ```
 
 `graficos.py` lee `resultados.csv` y `barrido_w.csv`; no vuelve a correr

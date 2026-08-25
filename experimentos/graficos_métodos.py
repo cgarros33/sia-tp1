@@ -290,58 +290,11 @@ def tabla_1_metricas():
     return guardar(figura, 'tabla_1_metricas')
 
 
-def tabla_2_heuristicas():
-    """La escalera de heurísticas: qué informa cada una y qué le ahorra a A*."""
-    from src.deadlocks import construir as construir_detector
-    from src.heuristicas import construir as construir_heuristica
-    from src.modelo import Problema, leer_archivo
-
-    filas_csv = [f for f in leer(CSV_MATRIZ)
-                 if f['metodo'] == 'A*' and f['deadlocks'] == 'completo'
-                 and f['corrida'] == '1']
-
-    iniciales = {}
-    for nivel, _ in NIVELES:
-        tablero, inicial = leer_archivo(RAIZ / 'niveles' / f'{nivel}.sok')
-        problema = Problema(tablero, inicial,
-                            detector_deadlocks=construir_detector('completo', tablero))
-        iniciales[nivel] = (problema, inicial)
-
-    filas, colores = [], []
-    for nombre in ESCALERA:
-        fila = [nombre, QUE_CALCULA[nombre], 'sí' if ADMISIBLES[nombre] else 'NO']
-        subóptima = False
-        for nivel, optimo in NIVELES:
-            problema, inicial = iniciales[nivel]
-            h = construir_heuristica(nombre, problema)(inicial)
-            del_nivel = next(f for f in filas_csv
-                             if f['nivel'] == nivel and f['heuristica'] == nombre)
-            costo = int(del_nivel['costo'])
-            expandidos = miles(int(del_nivel['nodos_expandidos']))
-            marca = '' if costo == optimo else f'   ✗ costo {costo}'
-            subóptima = subóptima or costo != optimo
-            fila.append(f"{h}   ({decimal(h / optimo, 2)})\n{expandidos}{marca}")
-        filas.append(fila)
-        colores.append('#FBF1DF' if not ADMISIBLES[nombre] else '#E8F0F8')
-
-    figura, panel = plt.subplots(figsize=(18, 4.6))
-    dibujar_tabla(
-        panel,
-        ['heurística', 'qué calcula', 'admisible'] + [n for n, _ in NIVELES],
-        filas, colores,
-        [0.075, 0.19, 0.075] + [0.132] * 5)
-    panel.set_title('Tabla 2 — La escalera de heurísticas   ·   A* con poda completa',
-                    fontsize=17, pad=16)
-    figura.text(0.5, 0.055, 'celda:  h(s₀)  (÷ óptimo)  ·  nodos de A*        ✗ costo subóptimo',
-                ha='center', fontsize=11, color=GRIS)
-    return guardar(figura, 'tabla_2_heuristicas')
-
-
 def main() -> int:
     aplicar_estilo()
     generadas = []
     for salida in (figura_5_costo, figura_6_memoria, figura_7_tiempo,
-                  tabla_1_metricas, tabla_2_heuristicas):
+                  tabla_1_metricas):
         generadas += list(salida())
     for ruta in generadas:
         print(f'  {ruta.relative_to(RAIZ)}  ({ruta.stat().st_size / 1024:.1f} KB)')
